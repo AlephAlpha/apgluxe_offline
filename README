@@ -1,0 +1,13 @@
+Invoke the program like so:
+
+python rule2asm.py b3s23 avx2
+(or use sse2 if your computer lacks AVX2 extensions)
+
+Then recompile the program:
+
+make clean
+make
+
+Then execute:
+
+./apgmera -k your_key
