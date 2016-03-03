@@ -140,19 +140,6 @@ public:
 
     void updateTile(VersaTile* sqt, bool history) {
 
-        urow_t e[ROWS + (512 / BITTAGE)];
-
-        // Boundary mask:
-        for (int i = 0; i < (256 / BITTAGE); i++) {
-            e[ROWS + i] = MIDDLE28;
-        }
-
-        #if BITTAGE == 32
-        for (int i = 0; i < 8; i++) {
-            e[ROWS + 8 + i] = (1 + i) % 8;
-        }
-        #endif
-
         #include "lifeasm.h"
 
 #if BITTAGE == 64

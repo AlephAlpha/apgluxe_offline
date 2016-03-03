@@ -4,6 +4,11 @@
 
         // Tile size: 32 * 32
         // Rule: b3s23
+
+        uint32_t e[ROWS + 16];
+        for (int i = 0; i < 8; i++) {e[ROWS + i] = MIDDLE28; }
+        for (int i = 0; i < 8; i++) {e[ROWS + 8 + i] = (1 + i) % 8; }
+
         if (history) {for (int i = 2; i < ROWS - 2; i++) {sqt->hist[i] |= sqt->d[i]; }}
         asm (
                 "vmovdqu 160(%1), %%ymm13 \n\t"
