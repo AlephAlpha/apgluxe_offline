@@ -1759,7 +1759,7 @@ int main (int argc, char *argv[]) {
             #ifdef USE_OPEN_MP
             parallelSearch(soups_per_haul, parallelisation, payoshaKey, seed, local_log);
             #else
-            runSearch(soups_per_haul, payoshaKey, seed, local_log);
+            runSearch(soups_per_haul, payoshaKey, seed, local_log, false);
             #endif
         } else {
             runSearch(soups_per_haul, payoshaKey, seed, local_log, testing);
