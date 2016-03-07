@@ -22,7 +22,7 @@
 #include "includes/vlife.h"
 #include "includes/incubator.h"
 
-#define APG_VERSION "v3.0"
+#define APG_VERSION "v3.01"
 
 /*
  * Produce a new seed based on the original seed, current time and PID:
@@ -1114,8 +1114,10 @@ public:
                 } else {
                     // Spaceship:
                     if (bounds[0] <= 8) {
+                        #ifdef STANDARD_LIFE
                         if (bounds[0] == 4)
                             elements = sss(curralgo);
+                        #endif
 
                         if (elements.size() == 0)
                             elements = pseudoBangBang(curralgo, bounds[0], true);
@@ -1203,6 +1205,7 @@ public:
                                     int ll = intList.size() - 1;
 
                                     if (population > 0) {
+                                        #ifdef STANDARD_LIFE
                                         if (population == 5) {
                                             if (ll == 15) {
                                                 nBoats += 1;
@@ -1211,6 +1214,7 @@ public:
                                                 // cout << "B: " << x << "," << y << endl;
                                             }
                                         } else {
+                                        #endif
                                             // cout << population << " ";
                                             int coords[population*2];
                                             int i = 0;
@@ -1224,7 +1228,9 @@ public:
                                             }
 
                                             pathologicals += classify(coords, population, objlist, curralgo);
+                                        #ifdef STANDARD_LIFE
                                         }
+                                        #endif
                                     }
                                 }
 

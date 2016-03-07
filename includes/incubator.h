@@ -8,6 +8,8 @@
 #include <cstring>
 #include <iostream>
 
+#include "params.h"
+
 #define I_HEIGHT 112
 
 struct Incube {
@@ -134,6 +136,10 @@ public:
     }
 
     int isGlider(Incube* sqt, int px, int py, bool nuke, uint64_t* cachearray) {
+
+        #ifndef STANDARD_LIFE
+        return 0;
+        #endif
 
         if (cachearray[py] & (1ull << (55 - px)))
             return 2;
@@ -270,6 +276,10 @@ public:
     }
 
     int isAnnoyance(Incube* sqt, int x, int y) {
+
+        #ifndef STANDARD_LIFE
+        return 0;
+        #endif
 
         if ((x < 2) || (y < 2) || (x > 52) || (y > I_HEIGHT - 4)) {
             return 0;

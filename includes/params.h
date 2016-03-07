@@ -6,3 +6,4 @@
 #define THSPACE 28
 #define MIDDLE28 0x3ffffffcu
 typedef uint32_t urow_t;
+#define STANDARD_LIFE 1
