@@ -22,7 +22,7 @@
 #include "includes/vlife.h"
 #include "includes/incubator.h"
 
-#define APG_VERSION "v3.01"
+#define APG_VERSION "v3.02"
 
 /*
  * Produce a new seed based on the original seed, current time and PID:
@@ -903,7 +903,7 @@ std::vector<std::string> pseudoBangBang(lifealgo* curralgo, int period, bool mov
                                             int colour = it2->first;
                                             int count = it2->second;
 
-                                            if (count == 3) {
+                                            if ((1 << count) & BIRTHS) {
                                                 dominantColour = colour;
                                             }
                                         }
@@ -1297,22 +1297,26 @@ public:
             }
 
             // Mention object in terminal:
+            #ifdef STANDARD_LIFE
             if ((apgcode[0] == 'x') && (apgcode[1] == 'p')) {
-            /*
                 if ((apgcode[2] != '2') || (apgcode[3] != '_')) {
                     if (apgcode.compare("xp3_co9nas0san9oczgoldlo0oldlogz1047210127401") != 0 && apgcode.compare("xp15_4r4z4r4") != 0) {
                         // Interesting oscillator:
                         std::cout << "Rare oscillator detected: \033[1;31m" << apgcode << "\033[0m" << std::endl;
                     }
                 }
-            */
-            } else if ((apgcode[0] == 'y') && (apgcode[1] == 'l')) {
-                std::cout << "Linear growth-pattern detected: \033[1;32m" << apgcode << "\033[0m" << std::endl;
             } else if ((apgcode[0] == 'x') && (apgcode[1] == 'q')) {
                 if (apgcode.compare("xq4_153") != 0 && apgcode.compare("xq4_6frc") != 0 && apgcode.compare("xq4_27dee6") != 0 && apgcode.compare("xq4_27deee6") != 0) {
                     std::cout << "Rare spaceship detected: \033[1;34m" << apgcode << "\033[0m" << std::endl;
                 }
+            } else if ((apgcode[0] == 'y') && (apgcode[1] == 'l')) {
+                std::cout << "Linear growth-pattern detected: \033[1;32m" << apgcode << "\033[0m" << std::endl;
             }
+            #else
+            if ((apgcode[0] == 'y') && (apgcode[1] == 'l')) {
+                std::cout << "Linear growth-pattern detected: \033[1;32m" << apgcode << "\033[0m" << std::endl;
+            }
+            #endif
         }
 
         return false;
@@ -1715,7 +1719,7 @@ int main (int argc, char *argv[]) {
     int local_log = 0;
     bool testing = false;
 
-    std::cout << "\nNamaste, this is \033[1;33mapgmera " << APG_VERSION << "\033[0m.\n" << std::endl;
+    std::cout << "\nGreetings, this is \033[1;33mapgmera " << APG_VERSION << "\033[0m, configured for \033[1;34m" << RULESTRING_SLASHED << "\033[0m.\n" << std::endl;
 
     // Extract options:
     for (int i = 1; i < argc - 1; i++) {

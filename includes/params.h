@@ -5,5 +5,7 @@
 #define ROWS 32
 #define THSPACE 28
 #define MIDDLE28 0x3ffffffcu
+#define BIRTHS 8
+#define SURVIVALS 12
 typedef uint32_t urow_t;
 #define STANDARD_LIFE 1

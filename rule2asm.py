@@ -34,6 +34,24 @@ def printcomment(g, s):
 
     g.write('                // '+s+'\n')
 
+def binary_rulestring(rulestring):
+
+    bee = 0
+    ess = 0
+
+    for char in rulestring:
+        if (char == 'b'):
+            birth = True
+        elif (char == 's'):
+            birth = False
+        else:
+            k = int(char)
+            if (birth):
+                bee = bee | (1 << k)
+            else:
+                ess = ess | (1 << k)
+
+    return (bee, ess)
 
 def genlogic(g, rulestring, regsize):
 
@@ -381,6 +399,8 @@ def main():
     rulestring = sys.argv[1]
     machinetype = sys.argv[2]
 
+    (bee, ess) = binary_rulestring(rulestring)
+
     if (machinetype == 'avx2'):
         quadrows = 4
         regsize = 256
@@ -410,6 +430,8 @@ def main():
         g.write('#define ROWS '+str(quadrows * simdrows)+'\n')
         g.write('#define THSPACE 28\n')
         g.write('#define MIDDLE28 0x3ffffffcu\n')
+        g.write('#define BIRTHS '+str(bee)+'\n')
+        g.write('#define SURVIVALS '+str(ess)+'\n')
         g.write('typedef uint32_t urow_t;\n')
         if (rulestring == 'b3s23'):
             g.write('#define STANDARD_LIFE 1\n')
