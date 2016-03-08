@@ -1,6 +1,7 @@
 # rule2asm.py -- convert an outer-totalistic rule into x86 assembly code using AVX.
 
 import sys
+import re
 
 def printinstr(g, s):
 
@@ -398,6 +399,13 @@ def main():
 
     rulestring = sys.argv[1]
     machinetype = sys.argv[2]
+
+    m = re.match('b3?4?5?6?7?8?s0?1?2?3?4?5?6?7?8?$', rulestring)
+    if m is None:
+        print("Rulestring must be of the form bXsY, where X is a subset of {3, ..., 8} and Y is a subset of {0, ..., 8}")
+        exit(1)
+    else:
+        print(m.group(0))
 
     (bee, ess) = binary_rulestring(rulestring)
 
