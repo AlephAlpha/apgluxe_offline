@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <ctime>
+#include <cmath>
 #include <unistd.h>
 
 #ifdef USE_OPEN_MP
@@ -22,7 +23,7 @@
 #include "includes/vlife.h"
 #include "includes/incubator.h"
 
-#define APG_VERSION "v3.02"
+#define APG_VERSION "v3.03"
 
 /*
  * Produce a new seed based on the original seed, current time and PID:
@@ -186,6 +187,58 @@ std::string canonise_orientation(lifealgo* curralgo, int length, int breadth, in
     }
 
     return representation;
+
+}
+
+double regress(std::vector<std::pair<double, double> > pairlist) {
+
+    double cumx = 0.0;
+    double cumy = 0.0;
+    double cumvar = 0.0;
+    double cumcov = 0.0;
+
+    std::vector<std::pair<double, double> >::iterator it;
+    for(it = pairlist.begin(); it < pairlist.end(); it++) {
+        cumx += it->first;
+        cumy += it->second;
+    }
+
+    cumx = cumx / pairlist.size();
+    cumy = cumy / pairlist.size();
+
+    for(it = pairlist.begin(); it < pairlist.end(); it++) {
+        cumvar += (it->first - cumx) * (it->first - cumx);
+        cumcov += (it->first - cumx) * (it->second - cumy);
+    }
+
+    return (cumcov / cumvar);
+
+}
+
+std::string powerlyse(lifealgo* curralgo, int stepsize, int numsteps) {
+
+    std::vector<std::pair<double, double> > pairlist;
+    double cumpop = 1.0;
+
+    for (int i = 0; i < numsteps; i++) {
+        runPattern(curralgo, stepsize);
+        cumpop += curralgo->getPopulation().toint();
+        pairlist.push_back(std::make_pair(std::log(i+1), std::log(cumpop)));
+    }
+
+    double power = regress(pairlist);
+
+    if (power < 1.10) {
+        return "PATHOLOGICAL";
+    } else if (power < 1.65) {
+        return "zz_REPLICATOR";
+    } else if (power < 2.05) {
+        return "zz_LINEAR";
+    } else if (power < 2.9) {
+        return "zz_EXPLOSIVE";
+    } else {
+        return "zz_QUADRATIC";
+    }
 
 }
 
@@ -630,6 +683,9 @@ std::string getRepresentation(lifealgo* curralgo, int maxperiod, int bounds[]) {
     if (period <= 0) {
         // std::cout << "Object is aperiodic (population = " << initpop << ")." << std::endl;
         repr = linearlyse(curralgo, 4100);
+        if (repr[0] != 'y') {
+            repr = powerlyse(curralgo, 64, 10000);
+        }
     } else {
         // std::cout << "Object has period " << period << "." << std::endl;
         std::ostringstream ss;
@@ -1310,11 +1366,15 @@ public:
                     std::cout << "Rare spaceship detected: \033[1;34m" << apgcode << "\033[0m" << std::endl;
                 }
             } else if ((apgcode[0] == 'y') && (apgcode[1] == 'l')) {
-                std::cout << "Linear growth-pattern detected: \033[1;32m" << apgcode << "\033[0m" << std::endl;
+                std::cout << "Linear-growth pattern detected: \033[1;32m" << apgcode << "\033[0m" << std::endl;
+            } else if ((apgcode[0] == 'z') && (apgcode[1] == 'z')) {
+                std::cout << "Chaotic-growth pattern detected: \033[1;32m" << apgcode << "\033[0m" << std::endl;
             }
             #else
             if ((apgcode[0] == 'y') && (apgcode[1] == 'l')) {
-                std::cout << "Linear growth-pattern detected: \033[1;32m" << apgcode << "\033[0m" << std::endl;
+                std::cout << "Linear-growth pattern detected: \033[1;32m" << apgcode << "\033[0m" << std::endl;
+            } else if ((apgcode[0] == 'z') && (apgcode[1] == 'z')) {
+                std::cout << "Chaotic-growth pattern detected: \033[1;32m" << apgcode << "\033[0m" << std::endl;
             }
             #endif
         }
