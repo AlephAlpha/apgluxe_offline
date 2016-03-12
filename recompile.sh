@@ -2,14 +2,10 @@
 set -e
 
 rulearg=`echo "$@" | grep -o "\\-\\-rule [a-z0-9]*" | sed "s/\\-\\-rule\\ //"`
-updatearg=`echo "$@" | grep -o "\\-\\-update"`
+updatearg=`echo "$@" | grep -o "\\-\\-update" | sed "s/\\-\\-update/u/"`
 
-if ((${#updatearg} == 0))
+if ((${#updatearg} != 0))
 then
-
-echo "Skipping updates; use --update to update apgmera automatically."
-
-else
 
 printf "Checking for updates from repository...\033[30m\n"
 newversion=`curl "https://gitlab.com/apgoucher/apgmera/raw/master/main.cpp" | grep "define APG_VERSION" | sed "s/#define APG_VERSION //"`
@@ -29,14 +25,17 @@ else
 printf "\033[0m...your copy of apgmera is already up-to-date.\n"
 
 fi
+
+else
+
+echo "Skipping updates; use --update to update apgmera automatically."
+
 fi
-
-
 
 if ((${#rulearg} == 0))
 then
 
-echo "Usage: ./recompile.sh --rule b3s23 [ARGUMENTS]"
+printf "\033[1;31mUsage: ./recompile.sh --rule b3s23 [ARGUMENTS]\033[0m\n"
 exit 1
 
 else
