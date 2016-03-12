@@ -23,7 +23,7 @@
 #include "includes/vlife.h"
 #include "includes/incubator.h"
 
-#define APG_VERSION "v3.03"
+#define APG_VERSION "v3.04"
 
 /*
  * Produce a new seed based on the original seed, current time and PID:
@@ -1813,6 +1813,9 @@ int main (int argc, char *argv[]) {
                 if (i == argc - 2) { return 0; }
             } else {
                 std::cout << "Rule \033[1;34m" << RULESTRING << "\033[0m does not match desired rule \033[1;34m" << desired_rulestring << "\033[0m." << std::endl;
+                // std::string linux_command = "./recompile.sh --rule " + desired_rulestring;
+                // system(linux_command.c_str());
+                execvp("./recompile.sh", argv);
                 return 1;
             }
         }
