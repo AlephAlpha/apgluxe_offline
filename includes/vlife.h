@@ -6,6 +6,7 @@
 #include <vector>
 #include <iostream>
 #include <cstring>
+#include <utility>
 
 #include "params.h"
 
@@ -367,7 +368,7 @@ public:
             ox += THSPACE;
         int tx = (nx - ox) / THSPACE;
 
-        VersaTile* sqt = &tiles[make_pair(tx, tw)];
+        VersaTile* sqt = &tiles[std::make_pair(tx, tw)];
         sqt->tx = tx;
         sqt->tw = tw;
 
@@ -577,7 +578,7 @@ int testmain() {
     clock_t start = clock();
 
     // Do this twenty times so that we can accurately measure the time.
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 50; i++) {
         vlife universe;
         universe.tilesProcessed = 0;
         VersaTile* sqt = &(universe.tiles[std::make_pair(0, 0)]);
@@ -598,13 +599,12 @@ int testmain() {
         }
 
         std::cout << "Population count: " << universe.totalPopulation() << std::endl;
-
-        // std::cout << "Tiles processed: " << universe.tilesProcessed << std::endl;
+        std::cout << "Tiles processed: " << universe.tilesProcessed << std::endl;
     }
 
     clock_t end = clock();
 
-    std::cout << "Lidka + 30k in " << ((double) (end-start) / CLOCKS_PER_SEC * 10.0) << " ms." << std::endl;
+    std::cout << "Lidka + 30k in " << ((double) (end-start) / CLOCKS_PER_SEC * 20.0) << " ms." << std::endl;
 
     return 0;
 
