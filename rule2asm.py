@@ -81,6 +81,8 @@ def genlogic(g, rulestring, regsize):
     beexor = (bee[0] != bee[8])
     essxor = (ess[1] != ess[9])
 
+    stars = ("*" if essxor else "") + ("**" if beexor else "")
+
     if (essxor):
         ess[0] = 1 - ess[8]
     else:
@@ -105,7 +107,7 @@ def genlogic(g, rulestring, regsize):
         ruleint += (bee[i] << i)
         ruleint += (ess[i] << (i + 8))
 
-    print("Rule integer:     "+str(ruleint))
+    print("Rule integer:     "+str(ruleint)+stars)
     regnames = [10, 8, 9, 12, 1, 0]
     opnames = ["and", "or", "andn", "nonsense", "xor"]
     rident = None
@@ -116,11 +118,22 @@ def genlogic(g, rulestring, regsize):
             if (len(x) == 2) and (int(x[0]) == ruleint):
                 rident = x[1][:-1]
 
+    if (ruleint == 0):
+        rident = '-004'
+    if (ruleint == 65280):
+        rident = '-331'
+    if (ruleint == 61680):
+        rident = '-221'
+    if (ruleint == 52428):
+        rident = '-111'
+    if (ruleint == 43690):
+        rident = '-001'
+
     if rident is None:
         print("Error: unrecognised rule")
         exit(1)
     else:
-        print("Rule circuit:     "+rident)
+        print("Rule circuit:     ["+rident+"]"+stars)
 
     rchars = list(rident)
     for i in xrange(len(rchars)):
@@ -440,10 +453,11 @@ def main():
 
     m = re.match('b3?4?5?6?7?8?s0?1?2?3?4?5?6?7?8?$', rulestring)
     if m is None:
-        print("Rulestring must be of the form bXsY, where X is a subset of {3, ..., 8} and Y is a subset of {0, ..., 8}")
+        print("Invalid rulestring: \033[1;31m"+rulestring+"\033[0m is not of the form:")
+        print("    bXsY\nwhere X is a subset of {3, ..., 8} and Y is a subset of {0, ..., 8}")
         exit(1)
     else:
-        print(m.group(0))
+        print("Valid rulestring: \033[1;32m"+m.group(0)+"\033[0m")
 
     (bee, ess) = binary_rulestring(rulestring)
 
