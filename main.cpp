@@ -1810,7 +1810,7 @@ int main (int argc, char *argv[]) {
             std::string desired_rulestring = argv[i+1];
             if (strcmp(RULESTRING, argv[i+1]) == 0) {
                 std::cout << "Rule \033[1;34m" << RULESTRING << "\033[0m is correctly configured." << std::endl;
-                if (i == argc - 2) { return 0; }
+                if (argc == 3) { return 0; }
             } else {
                 std::cout << "Rule \033[1;34m" << RULESTRING << "\033[0m does not match desired rule \033[1;34m" << desired_rulestring << "\033[0m." << std::endl;
                 // std::string linux_command = "./recompile.sh --rule " + desired_rulestring;
