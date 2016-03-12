@@ -34,13 +34,9 @@ fi
 
 if ((${#rulearg} == 0))
 then
-
-printf "\033[1;31mUsage: ./recompile.sh --rule b3s23 [ARGUMENTS]\033[0m\n"
-exit 1
-
-else
-
-echo $rulearg
+rulearg="b3s23"
+echo "Rule unspecified; assuming b3s23."
+fi
 
 nproc_avx2=`cat /proc/cpuinfo | grep flags | grep 'avx2' | wc -l`
 nproc_avx=`cat /proc/cpuinfo | grep flags | grep 'avx' | wc -l`
@@ -60,7 +56,5 @@ echo "Configuring rule $rulearg for machine type $machine_type"
 python rule2asm.py $rulearg $machine_type
 make
 ./apgmera "$@"
-
-fi
 
 exit 0
