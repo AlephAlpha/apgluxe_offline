@@ -11,6 +11,8 @@ def varvex3(g, regsize, op, inreg, inreg2, outreg):
 
     if (regsize == 256):
         printinstr(g, 'vp'+op+' %%ymm'+str(inreg)+', %%ymm'+str(inreg2)+', %%ymm'+str(outreg))
+    elif (regsize == 192):
+        printinstr(g, 'vp'+op+' %%xmm'+str(inreg)+', %%xmm'+str(inreg2)+', %%xmm'+str(outreg))
     else:
         if (inreg2 == outreg):
             printinstr(g, 'p'+op+' %%xmm'+str(inreg)+', %%xmm'+str(outreg))
@@ -28,6 +30,8 @@ def varvex(g, regsize, op, inreg, outreg):
 
     if (regsize == 256):
         printinstr(g, 'vp'+op+' %%ymm'+str(inreg)+', %%ymm'+str(outreg)+', %%ymm'+str(outreg))
+    elif (regsize == 192):
+        printinstr(g, 'vp'+op+' %%xmm'+str(inreg)+', %%xmm'+str(outreg)+', %%xmm'+str(outreg))
     else:
         printinstr(g, 'p'+op+' %%xmm'+str(inreg)+', %%xmm'+str(outreg))
 
@@ -188,26 +192,33 @@ def applyrule(g, quadrows, oddgen, regsize):
     # Load addresses into registers:
     if (regsize == 256):
         accessor = 'vmovdqu '
+        regbytes = 32
         if (oddgen):
             printinstr(g, accessor+str(quadrows * 32)+'(%1), %%ymm14')
         printinstr(g, accessor+str(quadrows * 32 + 32)+'(%1), %%ymm13')
     else:
-        # accessor = 'movdqu '
-        accessor = 'movups '
+        regbytes = 16
         printinstr(g, "mov $0xffffffff, %%ebx")
         printinstr(g, "movd %%ebx, %%xmm13")
-        printinstr(g, "pshufd $1, %%xmm13, %%xmm13")
         printinstr(g, "mov $0x3ffffffc, %%ebx")
         printinstr(g, "movd %%ebx, %%xmm14")
-        printinstr(g, "pshufd $0, %%xmm14, %%xmm14")
+        if (regsize == 192):
+            accessor = 'vmovdqu '
+            # accessor = 'movups '
+            printinstr(g, "vpshufd $1, %%xmm13, %%xmm13")
+            printinstr(g, "vpshufd $0, %%xmm14, %%xmm14")
+        else:
+            accessor = 'movups '
+            printinstr(g, "pshufd $1, %%xmm13, %%xmm13")
+            printinstr(g, "pshufd $0, %%xmm14, %%xmm14")
 
 
-    for i in xrange(quadrows + (0 if (oddgen and (regsize == 128)) else 1)):
+    for i in xrange(quadrows + (0 if (oddgen and (regbytes == 16)) else 1)):
 
         if (i < quadrows):
             # Source register:
             d = '(%1)' if (oddgen) else '(%0)'
-            d = d if (i == 0) else (str((regsize / 8) * i) + d)
+            d = d if (i == 0) else (str(regbytes * i) + d)
 
             printcomment(g, 'calculate row-wise parity and carry:')
             if (i % 2 == 0):
@@ -215,6 +226,9 @@ def applyrule(g, quadrows, oddgen, regsize):
                 if (regsize == 256):
                     printinstr(g, 'vpsrld $1, %%ymm5, %%ymm0')
                     printinstr(g, 'vpslld $1, %%ymm5, %%ymm1')
+                elif (regsize == 192):
+                    printinstr(g, 'vpsrld $1, %%xmm5, %%xmm0')
+                    printinstr(g, 'vpslld $1, %%xmm5, %%xmm1')
                 else:
                     printinstr(g, 'movdqa %%xmm5, %%xmm0')
                     printinstr(g, 'movdqa %%xmm5, %%xmm1')
@@ -231,6 +245,9 @@ def applyrule(g, quadrows, oddgen, regsize):
                 if (regsize == 256):
                     printinstr(g, 'vpsrld $1, %%ymm2, %%ymm0')
                     printinstr(g, 'vpslld $1, %%ymm2, %%ymm1')
+                elif (regsize == 192):
+                    printinstr(g, 'vpsrld $1, %%xmm2, %%xmm0')
+                    printinstr(g, 'vpslld $1, %%xmm2, %%xmm1')
                 else:
                     printinstr(g, 'movdqa %%xmm2, %%xmm0')
                     printinstr(g, 'movdqa %%xmm2, %%xmm1')
@@ -247,9 +264,9 @@ def applyrule(g, quadrows, oddgen, regsize):
             # Destination register:
             e = '(%0)' if (oddgen) else '(%1)'
             if oddgen:
-                e = str((regsize/8) * (i-1) + 8) + e
+                e = str(regbytes * (i-1) + 8) + e
             else:
-                e = e if (i == 1) else (str((regsize/8) * (i - 1)) + e)
+                e = e if (i == 1) else (str(regbytes * (i - 1)) + e)
 
             printcomment(g, 'apply vertical bitshifts:')
 
@@ -273,6 +290,27 @@ def applyrule(g, quadrows, oddgen, regsize):
                 printinstr(g, 'vpermq $57, %%ymm10, %%ymm10')
                 printinstr(g, 'vpermq $57, %%ymm11, %%ymm11')
                 printinstr(g, 'vpermd %%ymm12, %%ymm13, %%ymm12')
+            elif (regsize == 192):
+                printinstr(g, 'vpand %%xmm13, %%xmm'+str(3 + 3*(i%2))+', %%xmm8')
+                printinstr(g, 'vpand %%xmm13, %%xmm'+str(4 + 3*(i%2))+', %%xmm9')
+                printinstr(g, 'vpand %%xmm13, %%xmm'+str(2 + 3*(i%2))+', %%xmm12')
+
+                printinstr(g, 'vpandn %%xmm'+str(6 - 3*(i%2))+', %%xmm13, %%xmm0')
+                printinstr(g, 'vpor %%xmm0, %%xmm8, %%xmm8')
+
+                printinstr(g, 'vpandn %%xmm'+str(7 - 3*(i%2))+', %%xmm13, %%xmm0')
+                printinstr(g, 'vpor %%xmm0, %%xmm9, %%xmm9')
+
+                printinstr(g, 'vpandn %%xmm'+str(5 - 3*(i%2))+', %%xmm13, %%xmm0')
+                printinstr(g, 'vpor %%xmm0, %%xmm12, %%xmm12')
+
+                printinstr(g, 'vshufps $0x39, %%xmm8, %%xmm8, %%xmm8')
+                printinstr(g, 'vshufps $0x39, %%xmm9, %%xmm9, %%xmm9')
+                printinstr(g, 'vshufps $0x4e, %%xmm'+str(6 - 3*(i%2))+', %%xmm'+str(3 + 3*(i%2))+', %%xmm10')
+                printinstr(g, 'vshufps $0x4e, %%xmm'+str(7 - 3*(i%2))+', %%xmm'+str(4 + 3*(i%2))+', %%xmm11')
+                # printinstr(g, 'vshufps $0x4e, %%xmm'+str(3 + 3*(i%2))+', %%xmm'+str(6 - 3*(i%2))+', %%xmm10')
+                # printinstr(g, 'vshufps $0x4e, %%xmm'+str(4 + 3*(i%2))+', %%xmm'+str(7 - 3*(i%2))+', %%xmm11')
+                printinstr(g, 'vshufps $0x39, %%xmm12, %%xmm12, %%xmm12')
             else:
                 printinstr(g, 'movdqa %%xmm'+str(3 + 3*(i%2))+', %%xmm8')
                 printinstr(g, 'movdqa %%xmm'+str(4 + 3*(i%2))+', %%xmm9')
@@ -337,7 +375,7 @@ def applyrule(g, quadrows, oddgen, regsize):
                     varvex(g, regsize, 'xor', 11, 8)
                     varvex(g, regsize, 'or', 8, 15)
 
-                if (i == (quadrows - (1 if (regsize == 128) else 0))):
+                if (i == (quadrows - (1 if (regbytes == 16) else 0))):
                     printcomment(g, 'save diffs:')
                     if (regsize == 256):
                         printinstr(g, accessor + '%%ymm8, 64(%1)')
@@ -352,7 +390,7 @@ def applyrule(g, quadrows, oddgen, regsize):
     g.write('                : /* no output operands */ \n')
     g.write('                : "r" (sqt->d), "r" (e) \n')
     g.write('                : ')
-    if (regsize == 128):
+    if (regsize != 256):
         g.write('"ebx", ')
     for i in xrange(16):
         g.write('"xmm'+str(i)+'", ')
@@ -412,14 +450,18 @@ def main():
     if (machinetype == 'avx2'):
         quadrows = 4
         regsize = 256
+        simdrows = 8
+    elif (machinetype == 'avx1'):
+        quadrows = 8
+        regsize = 192
+        simdrows = 4
     elif (machinetype == 'sse2'):
         quadrows = 8
         regsize = 128
+        simdrows = 4
     else:
-        print("Machine type must be either 'avx2' or 'sse2'.")
+        print("Machine type must be either 'avx2', 'avx1', or 'sse2'.")
         exit(1)
-    
-    simdrows = regsize / 32
 
     with open('includes/lifelogic.h', 'w') as g:
 
