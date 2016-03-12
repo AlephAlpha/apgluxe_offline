@@ -1779,8 +1779,6 @@ int main (int argc, char *argv[]) {
     int local_log = 0;
     bool testing = false;
 
-    std::cout << "\nGreetings, this is \033[1;33mapgmera " << APG_VERSION << "\033[0m, configured for \033[1;34m" << RULESTRING_SLASHED << "\033[0m.\n" << std::endl;
-
     // Extract options:
     for (int i = 1; i < argc - 1; i++) {
         if (strcmp(argv[i], "-k") == 0) {
@@ -1807,8 +1805,20 @@ int main (int argc, char *argv[]) {
         } else if (strcmp(argv[i], "--adjustment") == 0) {
             correctionHaul(payoshaKey);
             return 0;
+        } else if (strcmp(argv[i], "--rule") == 0) {
+            std::cout << "\033[1;33mapgmera " << APG_VERSION << "\033[0m: ";
+            std::string desired_rulestring = argv[i+1];
+            if (strcmp(RULESTRING, argv[i+1]) == 0) {
+                std::cout << "Rule \033[1;34m" << RULESTRING << "\033[0m is correctly configured." << std::endl;
+                if (i == argc - 2) { return 0; }
+            } else {
+                std::cout << "Rule \033[1;34m" << RULESTRING << "\033[0m does not match desired rule \033[1;34m" << desired_rulestring << "\033[0m." << std::endl;
+                return 1;
+            }
         }
     }
+
+    std::cout << "\nGreetings, this is \033[1;33mapgmera " << APG_VERSION << "\033[0m, configured for \033[1;34m" << RULESTRING_SLASHED << "\033[0m.\n" << std::endl;
 
     // Initialise QuickLife:
     qlifealgo::doInitializeAlgoInfo(staticAlgoInfo::tick());
