@@ -197,9 +197,10 @@ def genlogic(g, rulestring, regsize):
         varvex(g, regsize, 'xor', 11, 10)
 
 
-def applyrule(g, quadrows, oddgen, regsize):
+def applyrule(g, quadrows, oddgen, regsize, historical=True):
 
-    g.write('        asm (\n')
+    if historical or not oddgen:
+        g.write('        asm (\n')
 
 
     # Load addresses into registers:
@@ -207,23 +208,25 @@ def applyrule(g, quadrows, oddgen, regsize):
         accessor = 'vmovdqu '
         regbytes = 32
         if (oddgen):
-            printinstr(g, accessor+str(quadrows * 32)+'(%1), %%ymm14')
-        printinstr(g, accessor+str(quadrows * 32 + 32)+'(%1), %%ymm13')
+            # printinstr(g, accessor+str(quadrows * 32)+'(%1), %%ymm14')
+            printinstr(g, accessor+'(%2), %%ymm14')
+        if historical or not oddgen:
+            # printinstr(g, accessor+str(quadrows * 32 + 32)+'(%1), %%ymm13')
+            printinstr(g, accessor+'32(%2), %%ymm13')
     else:
         regbytes = 16
-        printinstr(g, "mov $0xffffffff, %%ebx")
-        printinstr(g, "movd %%ebx, %%xmm13")
-        printinstr(g, "mov $0x3ffffffc, %%ebx")
-        printinstr(g, "movd %%ebx, %%xmm14")
-        if (regsize == 192):
-            accessor = 'vmovdqu '
-            # accessor = 'movups '
-            printinstr(g, "vpshufd $1, %%xmm13, %%xmm13")
-            printinstr(g, "vpshufd $0, %%xmm14, %%xmm14")
-        else:
-            accessor = 'movups '
-            printinstr(g, "pshufd $1, %%xmm13, %%xmm13")
-            printinstr(g, "pshufd $0, %%xmm14, %%xmm14")
+        accessor = 'vmovdqu ' if (regsize == 192) else 'movups '
+        if historical or not oddgen:
+            printinstr(g, "mov $0xffffffff, %%ebx")
+            printinstr(g, "movd %%ebx, %%xmm13")
+            printinstr(g, "mov $0x3ffffffc, %%ebx")
+            printinstr(g, "movd %%ebx, %%xmm14")
+            if (regsize == 192):
+                printinstr(g, "vpshufd $1, %%xmm13, %%xmm13")
+                printinstr(g, "vpshufd $0, %%xmm14, %%xmm14")
+            else:
+                printinstr(g, "pshufd $1, %%xmm13, %%xmm13")
+                printinstr(g, "pshufd $0, %%xmm14, %%xmm14")
 
 
     for i in xrange(quadrows + (0 if (oddgen and (regbytes == 16)) else 1)):
@@ -321,8 +324,6 @@ def applyrule(g, quadrows, oddgen, regsize):
                 printinstr(g, 'vshufps $0x39, %%xmm9, %%xmm9, %%xmm9')
                 printinstr(g, 'vshufps $0x4e, %%xmm'+str(6 - 3*(i%2))+', %%xmm'+str(3 + 3*(i%2))+', %%xmm10')
                 printinstr(g, 'vshufps $0x4e, %%xmm'+str(7 - 3*(i%2))+', %%xmm'+str(4 + 3*(i%2))+', %%xmm11')
-                # printinstr(g, 'vshufps $0x4e, %%xmm'+str(3 + 3*(i%2))+', %%xmm'+str(6 - 3*(i%2))+', %%xmm10')
-                # printinstr(g, 'vshufps $0x4e, %%xmm'+str(4 + 3*(i%2))+', %%xmm'+str(7 - 3*(i%2))+', %%xmm11')
                 printinstr(g, 'vshufps $0x39, %%xmm12, %%xmm12, %%xmm12')
             else:
                 printinstr(g, 'movdqa %%xmm'+str(3 + 3*(i%2))+', %%xmm8')
@@ -331,18 +332,18 @@ def applyrule(g, quadrows, oddgen, regsize):
                 printinstr(g, 'movdqa %%xmm'+str(4 + 3*(i%2))+', %%xmm11')
                 printinstr(g, 'movdqa %%xmm'+str(2 + 3*(i%2))+', %%xmm12')
 
-                printinstr(g, 'pand %%xmm13, %%xmm8')
                 printinstr(g, 'movdqa %%xmm13, %%xmm0')
+                printinstr(g, 'pand %%xmm13, %%xmm8')
                 printinstr(g, 'pandn %%xmm'+str(6 - 3*(i%2))+', %%xmm0')
                 printinstr(g, 'por %%xmm0, %%xmm8')
 
-                printinstr(g, 'pand %%xmm13, %%xmm9')
                 printinstr(g, 'movdqa %%xmm13, %%xmm0')
+                printinstr(g, 'pand %%xmm13, %%xmm9')
                 printinstr(g, 'pandn %%xmm'+str(7 - 3*(i%2))+', %%xmm0')
                 printinstr(g, 'por %%xmm0, %%xmm9')
 
-                printinstr(g, 'pand %%xmm13, %%xmm12')
                 printinstr(g, 'movdqa %%xmm13, %%xmm0')
+                printinstr(g, 'pand %%xmm13, %%xmm12')
                 printinstr(g, 'pandn %%xmm'+str(5 - 3*(i%2))+', %%xmm0')
                 printinstr(g, 'por %%xmm0, %%xmm12')
 
@@ -367,18 +368,24 @@ def applyrule(g, quadrows, oddgen, regsize):
             g.write('#include "lifelogic.h"\n')
 
             if (oddgen):
+                printcomment(g, 'determine diff:')
                 if (i == quadrows):
                     # Can only happen in 256-bit mode:
-                    printcomment(g, 'dodgy vertical bit-masking hack:')
-                    printinstr(g, 'vpxor %%ymm14, %%ymm14, %%ymm0')
-                    printinstr(g, 'vpblendd $15, %%ymm14, %%ymm0, %%ymm14')
+                    # printcomment(g, 'dodgy vertical bit-masking hack:')
+                    # printinstr(g, 'vpxor %%ymm14, %%ymm14, %%ymm0')
+                    # printinstr(g, 'vpblendd $15, %%ymm14, %%ymm0, %%ymm14')
+                    varvex(g, 192, 'and', 14, 10)
+                    printinstr(g, accessor + e + ', %%xmm8')
+                    varvex3(g, 192, 'andn', 8, 14, 11)
+                    varvex(g, 192, 'or', 10, 11)
+                    printinstr(g, accessor + '%%xmm11, ' + e)
 
-                printcomment(g, 'determine diff:')
-                varvex(g, regsize, 'and', 14, 10)
-                printinstr(g, accessor + e + (', %%ymm8' if (regsize == 256) else ', %%xmm8'))
-                varvex3(g, regsize, 'andn', 8, 14, 11)
-                varvex(g, regsize, 'or', 10, 11)
-                printinstr(g, accessor + ('%%ymm11, ' if (regsize == 256) else '%%xmm11, ') + e)
+                else:
+                    varvex(g, regsize, 'and', 14, 10)
+                    printinstr(g, accessor + e + (', %%ymm8' if (regsize == 256) else ', %%xmm8'))
+                    varvex3(g, regsize, 'andn', 8, 14, 11)
+                    varvex(g, regsize, 'or', 10, 11)
+                    printinstr(g, accessor + ('%%ymm11, ' if (regsize == 256) else '%%xmm11, ') + e)
 
                 if (i == 1):
                     varvex3(g, regsize, 'xor', 11, 8, 15)
@@ -400,14 +407,18 @@ def applyrule(g, quadrows, oddgen, regsize):
                 printcomment(g, 'store result:')
                 printinstr(g, accessor + ('%%ymm10, ' if (regsize == 256) else '%%xmm10, ') + e)
 
-    g.write('                : /* no output operands */ \n')
-    g.write('                : "r" (sqt->d), "r" (e) \n')
-    g.write('                : ')
-    if (regsize != 256):
-        g.write('"ebx", ')
-    for i in xrange(16):
-        g.write('"xmm'+str(i)+'", ')
-    g.write('"memory");\n\n')
+    if oddgen or historical:
+        g.write('                : /* no output operands */ \n')
+        if (regsize == 256):
+            g.write('                : "r" (sqt->d), "r" (e), "r" (globarray) \n')
+        else:
+            g.write('                : "r" (sqt->d), "r" (e) \n')
+        g.write('                : ')
+        if (regsize != 256):
+            g.write('"ebx", ')
+        for i in xrange(16):
+            g.write('"xmm'+str(i)+'", ')
+        g.write('"memory");\n\n')
 
 
 def genasm(g, quadrows, rulestring, regsize):
@@ -416,17 +427,22 @@ def genasm(g, quadrows, rulestring, regsize):
     g.write('        // Tile size: 32 * '+str((regsize / 32) * quadrows)+'\n')
     g.write('        // Rule: '+rulestring+'\n\n')
 
-    if (regsize == 256):
-        g.write('        uint32_t e[ROWS + 16];\n')
-        g.write('        for (int i = 0; i < 8; i++) {e[ROWS + i] = MIDDLE28; }\n')
-        g.write('        for (int i = 0; i < 8; i++) {e[ROWS + 8 + i] = (1 + i) % 8; }\n\n')
-    else:
-        g.write('        uint32_t e[ROWS];\n\n')
+    g.write('        uint32_t e[ROWS];\n\n')
 
-    g.write('        if (history) {for (int i = 2; i < ROWS - 2; i++) {sqt->hist[i] |= sqt->d[i]; }}\n')
+    # g.write('        if (history) {for (int i = 2; i < ROWS - 2; i++) {sqt->hist[i] |= sqt->d[i]; }}\n')
+    # applyrule(g, quadrows, False, regsize)
+    # g.write('        if (history) {for (int i = 2; i < ROWS - 2; i++) {sqt->hist[i] |= e[i-1]; }}\n')
+    # applyrule(g, quadrows, True, regsize)
+
+    g.write('        if (history) {\n')
     applyrule(g, quadrows, False, regsize)
-    g.write('        if (history) {for (int i = 2; i < ROWS - 2; i++) {sqt->hist[i] |= e[i-1]; }}\n')
+    g.write('        for (int i = 2; i < ROWS - 2; i++) {sqt->hist[i] |= sqt->d[i]; }\n')
     applyrule(g, quadrows, True, regsize)
+    g.write('        for (int i = 2; i < ROWS - 2; i++) {sqt->hist[i] |= e[i-1]; }\n')
+    g.write('        } else {\n')
+    applyrule(g, quadrows, False, regsize, historical=False)
+    applyrule(g, quadrows, True, regsize, historical=False)
+    g.write('        }\n')
 
     g.write('        // The diffs we\'re interested in:\n')
     if (regsize == 256):

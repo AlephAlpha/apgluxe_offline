@@ -12,9 +12,12 @@
 
 #define TVSPACE (ROWS - 4)
 
+const urow_t globarray[] = {MIDDLE28, MIDDLE28, MIDDLE28, MIDDLE28, MIDDLE28, MIDDLE28, MIDDLE28, MIDDLE28, 1, 2, 3, 4, 5, 6, 7, 0};
+
+
 struct VersaTile {
 
-    urow_t d[ROWS + 8] /* __attribute__((aligned (32))) */;
+    urow_t d[ROWS] /* __attribute__((aligned (32))) */;
     urow_t hist[ROWS] /* __attribute__((aligned (32))) */;
 
     struct VersaTile *neighbours[6];
@@ -97,6 +100,7 @@ public:
         const urow_t middle28 = 0x3ffffffcu;
 #endif
 
+
         if (sqt->updateflags & (1 << 0)) {
             VersaTile* n = getNeighbour(sqt, 0);
             sqt->d[0] = ((n->d[TVSPACE] & middle28) << (THSPACE / 2)) | (sqt->d[0] & right16);
@@ -173,26 +177,17 @@ public:
 
         }
 
-        if (topdiff) {
-
             if (topdiff & lefthalf)
                 updateNeighbour(sqt, 0);
 
             if (topdiff & righthalf)
                 updateNeighbour(sqt, 1);
-        }
-
-        if (botdiff) {
-
-            // std::cout << "Bottom different." << std::endl;
 
             if (botdiff & lefthalf)
                 updateNeighbour(sqt, 4);
 
             if (botdiff & righthalf)
                 updateNeighbour(sqt, 3);
-        }
-
     }
 
     uint64_t hashTile(VersaTile* sqt) {
