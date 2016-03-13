@@ -436,12 +436,12 @@ def genasm(g, quadrows, rulestring, regsize, historical, machinetype):
     # g.write('        if (history) {for (int i = 2; i < ROWS - 2; i++) {sqt->hist[i] |= e[i-1]; }}\n')
     # applyrule(g, quadrows, True, regsize)
 
-    applyrule(g, quadrows, False, regsize, historical, machinetype)
     if (historical):
         g.write('        for (int i = 2; i < ROWS - 2; i++) {sqt->hist[i] |= sqt->d[i]; }\n')
-    applyrule(g, quadrows, True, regsize, historical, machinetype)
+    applyrule(g, quadrows, False, regsize, historical, machinetype)
     if (historical):
         g.write('        for (int i = 2; i < ROWS - 2; i++) {sqt->hist[i] |= e[i-1]; }\n')
+    applyrule(g, quadrows, True, regsize, historical, machinetype)
 
     g.write('        // The diffs we\'re interested in:\n')
     if (regsize == 256):
