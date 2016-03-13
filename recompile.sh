@@ -36,6 +36,9 @@ if ((${#rulearg} == 0))
 then
 rulearg="b3s23"
 echo "Rule unspecified; assuming b3s23."
+launch=0
+else
+launch=1
 fi
 
 nproc_avx2=`cat /proc/cpuinfo | grep flags | grep 'avx2' | wc -l`
@@ -55,6 +58,10 @@ echo "Configuring rule $rulearg for machine type $machine_type"
 
 python rule2asm.py $rulearg $machine_type
 make
+
+if (($launch == 1))
+then
 ./apgmera "$@"
+fi
 
 exit 0
