@@ -7,6 +7,7 @@
 #include <iostream>
 #include <cstring>
 #include <utility>
+#include <cpuid.h>
 
 #include "params.h"
 
@@ -14,6 +15,53 @@
 
 const urow_t globarray[] = {MIDDLE28, MIDDLE28, MIDDLE28, MIDDLE28, MIDDLE28, MIDDLE28, MIDDLE28, MIDDLE28, 1, 2, 3, 4, 5, 6, 7, 0};
 
+int __best_instruction_set = 0;
+
+/*
+* Apple Bottom's vector instruction set detector (modified)
+*/
+int get_instruction_set() {
+
+    if (__best_instruction_set == 0) {
+
+        uint32_t eax, ebx, ecx, edx;
+
+        uint32_t have_sse2 = 0;
+        uint32_t have_avx1 = 0;
+        uint32_t have_avx2 = 0;
+
+        __cpuid(0, eax, ebx, ecx, edx);
+        uint32_t max_level = eax;
+        __cpuid(1, eax, ebx, ecx, edx);
+
+        have_sse2 = (edx & (1 << 26));
+        have_avx1 = (ecx & (1 << 28));
+
+        if(max_level >= 7) {
+            __cpuid_count(7, 0, eax, ebx, ecx, edx);
+            have_avx2 = (ebx & (1 << 5));
+        }
+
+        if (have_avx2) {
+            std::cout << "Instruction set \033[1mAVX2\033[0m supported." << std::endl;
+            __best_instruction_set = 3;
+        } else if (have_avx1) {
+            std::cout << "Instruction set \033[1mAVX1\033[0m supported." << std::endl;
+            __best_instruction_set = 2;
+        } else if (have_sse2) {
+            std::cout << "Instruction set \033[1mSSE2\033[0m supported." << std::endl;
+            __best_instruction_set = 1;
+        } else {
+            std::cout << "SSE2 unsupported; please use apgsearch 1.x." << std::endl;
+            __best_instruction_set = -1;
+        }
+
+
+    }
+
+    return __best_instruction_set;
+
+}
 
 struct VersaTile {
 
@@ -173,14 +221,16 @@ public:
             modified.pop_back();
         }
 
+        int instruction_set = get_instruction_set();
+
         while (!temp_modified.empty()) {
-            if (__builtin_cpu_supports("avx2")) {
+            if (instruction_set == 3) {
                 if (history) {
                     updateTile_avx2_history(temp_modified.back());
                 } else {
                     updateTile_avx2_nohistory(temp_modified.back());
                 }
-            } else if (__builtin_cpu_supports("avx")) {
+            } else if (instruction_set == 2) {
                 if (history) {
                     updateTile_avx1_history(temp_modified.back());
                 } else {
