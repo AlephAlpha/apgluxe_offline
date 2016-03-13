@@ -143,52 +143,9 @@ public:
         temp_modified.push_back(sqt);
     }
 
-    void updateTile(VersaTile* sqt, bool history) {
-
-        #include "lifeasm.h"
-
-#if BITTAGE == 64
-        const urow_t leftmiddle  = 0x3000000000000000ull;
-        const urow_t rightmiddle = 0x000000000000000cull;
-        const urow_t lefthalf    = 0x3fffffffc0000000ull;
-        const urow_t righthalf   = 0x00000003fffffffcull;
-#else
-        const urow_t leftmiddle  = 0x30000000u;
-        const urow_t rightmiddle = 0x0000000cu;
-        const urow_t lefthalf    = 0x3fffc000u;
-        const urow_t righthalf   = 0x0003fffcu;
-#endif
-
-        if (bigdiff) {
-
-            sqt->populationCurrent = false;
-            sqt->hashCurrent = false;
-
-            if (sqt->updateflags == 0)
-                modified.push_back(sqt);
-
-            sqt->updateflags |= 64;
-
-            if (bigdiff & leftmiddle)
-                updateNeighbour(sqt, 5);
-
-            if (bigdiff & rightmiddle)
-                updateNeighbour(sqt, 2);
-
-        }
-
-            if (topdiff & lefthalf)
-                updateNeighbour(sqt, 0);
-
-            if (topdiff & righthalf)
-                updateNeighbour(sqt, 1);
-
-            if (botdiff & lefthalf)
-                updateNeighbour(sqt, 4);
-
-            if (botdiff & righthalf)
-                updateNeighbour(sqt, 3);
-    }
+    #include "lifeasm-avx2.h"
+    #include "lifeasm-avx1.h"
+    #include "lifeasm-sse2.h"
 
     uint64_t hashTile(VersaTile* sqt) {
 
@@ -217,7 +174,25 @@ public:
         }
 
         while (!temp_modified.empty()) {
-            updateTile(temp_modified.back(), history);
+            if (__builtin_cpu_supports("avx2")) {
+                if (history) {
+                    updateTile_avx2_history(temp_modified.back());
+                } else {
+                    updateTile_avx2_nohistory(temp_modified.back());
+                }
+            } else if (__builtin_cpu_supports("avx")) {
+                if (history) {
+                    updateTile_avx1_history(temp_modified.back());
+                } else {
+                    updateTile_avx1_nohistory(temp_modified.back());
+                }
+            } else {
+                if (history) {
+                    updateTile_sse2_history(temp_modified.back());
+                } else {
+                    updateTile_sse2_nohistory(temp_modified.back());
+                }
+            }
             temp_modified.pop_back();
             tilesProcessed += 1;
         }
@@ -230,15 +205,9 @@ public:
 
         int pop = 0;
 
-        #if (BITTAGE == 32)
         for (int i = 2; i < TVSPACE + 2; i++) {
             pop += __builtin_popcount(sqt->d[i] & MIDDLE28);
         }
-        #else
-        for (int i = 2; i < TVSPACE + 2; i++) {
-            pop += __builtin_popcountll(sqt->d[i] & MIDDLE28);
-        }
-        #endif
 
         sqt->population = pop;
         sqt->populationCurrent = true;
