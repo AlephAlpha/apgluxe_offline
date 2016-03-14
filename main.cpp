@@ -23,7 +23,7 @@
 #include "includes/vlife.h"
 #include "includes/incubator.h"
 
-#define APG_VERSION "v3.06"
+#define APG_VERSION "v3.07"
 
 /*
  * Produce a new seed based on the original seed, current time and PID:
@@ -1170,7 +1170,7 @@ public:
                 } else {
                     // Spaceship:
                     if (bounds[0] <= 8) {
-                        #ifdef STANDARD_LIFE
+                        #ifdef GLIDERS_EXIST
                         if (bounds[0] == 4)
                             elements = sss(curralgo);
                         #endif

@@ -519,6 +519,8 @@ def main():
         g.write('typedef uint32_t urow_t;\n')
         if (rulestring == 'b3s23'):
             g.write('#define STANDARD_LIFE 1\n')
+        if (re.match('b36?7?8?s0?235?6?7?8?$', rulestring)):
+            g.write('#define GLIDERS_EXIST 1\n')
 
 
 main()
