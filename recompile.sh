@@ -2,7 +2,7 @@
 set -e
 
 chmod 777 "recompile.sh"
-rm ".depend"
+rm -f ".depend"
 
 rulearg=`echo "$@" | grep -o "\\-\\-rule [a-z0-9]*" | sed "s/\\-\\-rule\\ //"`
 updatearg=`echo "$@" | grep -o "\\-\\-update" | sed "s/\\-\\-update/u/"`
