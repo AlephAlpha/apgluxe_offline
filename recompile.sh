@@ -2,7 +2,12 @@
 set -e
 
 chmod 777 "recompile.sh"
+
+# Ensures 'make' works properly:
 rm -f ".depend"
+
+# Ensures compilation will fail unless rule2asm succeeds:
+rm -f "includes/params.h"
 
 rulearg=`echo "$@" | grep -o "\\-\\-rule [a-z0-9]*" | sed "s/\\-\\-rule\\ //"`
 updatearg=`echo "$@" | grep -o "\\-\\-update" | sed "s/\\-\\-update/u/"`
