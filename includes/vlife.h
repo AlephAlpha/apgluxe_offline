@@ -255,8 +255,9 @@ public:
 
         int pop = 0;
 
-        for (int i = 2; i < TVSPACE + 2; i++) {
-            pop += __builtin_popcount(sqt->d[i] & MIDDLE28);
+        for (int i = 2; i < TVSPACE + 2; i += 2) {
+            const uint64_t v = *reinterpret_cast<const uint64_t*>(sqt->d + i);
+            pop += __builtin_popcountll(v & 0x3ffffffc3ffffffcull);
         }
 
         sqt->population = pop;
