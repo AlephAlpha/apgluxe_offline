@@ -1778,7 +1778,7 @@ int main (int argc, char *argv[]) {
     int soups_per_haul = 10000000;
     std::string payoshaKey = "#anon";
     std::string seed = reseed("original seed");
-    int verifications = 3;
+    int verifications = -1;
     int parallelisation = 0;
     int local_log = 0;
     bool testing = false;
@@ -1823,6 +1823,12 @@ int main (int argc, char *argv[]) {
                 return 1;
             }
         }
+    }
+
+    // Disable verification by default if running on a HPC;
+    // otherwise verify three hauls per uploaded haul:
+    if (verifications < 0) {
+        verifications = (parallelisation <= 4) ? 3 : 0;
     }
 
     std::cout << "\nGreetings, this is \033[1;33mapgmera " << APG_VERSION << "\033[0m, configured for \033[1;34m" << RULESTRING_SLASHED << "\033[0m.\n" << std::endl;
