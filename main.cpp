@@ -23,7 +23,7 @@
 #include "includes/vlife.h"
 #include "includes/incubator.h"
 
-#define APG_VERSION "v3.08"
+#define APG_VERSION "v3.09"
 
 /*
  * Produce a new seed based on the original seed, current time and PID:
@@ -657,23 +657,27 @@ std::string getRepresentation(lifealgo* curralgo, int maxperiod, int bounds[]) {
 
     if (getBoundingBox(curralgo, bbOrig)) {
 
-        unsigned long long hash1 = hash_rectangle(curralgo, bbOrig[0], bbOrig[1], bbOrig[2], bbOrig[3]);
+        uint64_t hash1 = hash_rectangle(curralgo, bbOrig[0], bbOrig[1], bbOrig[2], bbOrig[3]);
+        int pop1 = curralgo->getPopulation().toint();
 
         for (int i = 1; i <= maxperiod; i++) {
 
             runPattern(curralgo, 1);
 
             int boundingBox[4];
+            int pop2 = curralgo->getPopulation().toint();
 
-            if (getBoundingBox(curralgo, boundingBox)) {
+            if ((pop1 == pop2) && getBoundingBox(curralgo, boundingBox)) {
 
-                unsigned long long hash2 = hash_rectangle(curralgo, boundingBox[0], boundingBox[1], boundingBox[2], boundingBox[3]);
+                if (boundingBox[2] == bbOrig[2] && boundingBox[3] == bbOrig[3]) {
+                    uint64_t hash2 = hash_rectangle(curralgo, boundingBox[0], boundingBox[1], boundingBox[2], boundingBox[3]);
 
-                if (hash1 == hash2 && boundingBox[2] == bbOrig[2] && boundingBox[3] == bbOrig[3]) {
-                    period = i;
-                    xdisplacement = boundingBox[0] - bbOrig[0];
-                    ydisplacement = boundingBox[1] - bbOrig[1];
-                    break;
+                    if (hash1 == hash2) {
+                        period = i;
+                        xdisplacement = boundingBox[0] - bbOrig[0];
+                        ydisplacement = boundingBox[1] - bbOrig[1];
+                        break;
+                    }
                 }
 
             }

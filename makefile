@@ -48,6 +48,7 @@ depend: .depend
 # Clean the build environment by deleting any object files:
 clean: 
 	rm -f $(OBJECTS)
+	rm -f ./.depend
 	echo Clean done
 
 $(EXECUTABLE): $(OBJECTS) 
