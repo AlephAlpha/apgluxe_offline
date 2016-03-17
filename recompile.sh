@@ -57,6 +57,8 @@ make
 if (($launch == 1))
 then
 ./apgmera "$@"
+else
+./apgmera --rule $rulearg
 fi
 
 exit 0
