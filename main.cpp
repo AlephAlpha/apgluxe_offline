@@ -23,7 +23,7 @@
 #include "includes/vlife.h"
 #include "includes/incubator.h"
 
-#define APG_VERSION "v3.09"
+#define APG_VERSION "v3.1"
 
 /*
  * Produce a new seed based on the original seed, current time and PID:
@@ -1778,7 +1778,7 @@ int main (int argc, char *argv[]) {
     int soups_per_haul = 10000000;
     std::string payoshaKey = "#anon";
     std::string seed = reseed("original seed");
-    int verifications = 0;
+    int verifications = 3;
     int parallelisation = 0;
     int local_log = 0;
     bool testing = false;
@@ -1798,8 +1798,8 @@ int main (int argc, char *argv[]) {
                 soups_per_haul = 100000000;
             }
             */
-        // } else if (strcmp(argv[i], "-v") == 0) {
-        //    verifications = atoi(argv[i+1]);
+        } else if (strcmp(argv[i], "-v") == 0) {
+            verifications = atoi(argv[i+1]);
         } else if (strcmp(argv[i], "-L") == 0) {
             local_log = atoi(argv[i+1]);
         } else if (strcmp(argv[i], "-t") == 0) {
