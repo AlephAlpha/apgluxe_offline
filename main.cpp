@@ -1829,7 +1829,7 @@ int main (int argc, char *argv[]) {
         }
     }
 
-    if (argc == nullargs) { return 0; }
+    if ((argc == nullargs) && (argc > 1)) { return 0; }
 
     // Disable verification by default if running on a HPC;
     // otherwise verify three hauls per uploaded haul:
