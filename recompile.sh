@@ -41,20 +41,22 @@ echo "Skipping updates; use --update to update apgmera automatically."
 
 fi
 
-launch=1
+launch=0
 
 if ((${#rulearg} == 0))
 then
 rulearg="b3s23"
 echo "Rule unspecified; assuming b3s23."
-launch=0
+else
+launch=1
 fi
 
 if ((${#symmarg} == 0))
 then
 symmarg="C1"
 echo "Symmetry unspecified; assuming C1."
-launch=0
+else
+launch=1
 fi
 
 echo "Configuring rule $rulearg; symmetry $symmarg"
