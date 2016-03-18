@@ -23,7 +23,7 @@
 #include "includes/vlife.h"
 #include "includes/incubator.h"
 
-#define APG_VERSION "v3.11"
+#define APG_VERSION "v3.12"
 
 /*
  * Produce a new seed based on the original seed, current time and PID:
@@ -69,7 +69,7 @@ lifealgo *createUniverse(const char *algoName) {
    return imp ;
 }
 
-void hashsoup(VersaTile* sqt, std::string prehash) {
+void hashsoup(VersaTile* sqt, std::string prehash, std::string symmetry) {
 
     // This takes about 16 microseconds, compared with 350 for the Python counterpart!
 
@@ -82,12 +82,22 @@ void hashsoup(VersaTile* sqt, std::string prehash) {
     ctx.final(digest);
 
     // Dump the soup into the array:
-    for (int j = 0; j < 16; j++) {
-        #if (BITTAGE == 32)
-        sqt->d[j+(ROWS / 2 - 8)] = (digest[2*j] << 16) + (digest[2*j+1] << 8);
-        #else
-        sqt->d[j+(ROWS / 2 - 8)] = (((uint64_t) digest[2*j]) << 32) + (((uint64_t) digest[2*j+1]) << 24);
-        #endif
+    if (symmetry == "C1") {
+        for (int j = 0; j < 16; j++) {
+            sqt->d[j+(ROWS / 2 - 8)] = (digest[2*j] << 16) + (digest[2*j+1] << 8);
+        }
+    } else if (symmetry == "D2_+1") {
+        for (int j = 0; j < 16; j++) {
+            sqt->d[(ROWS / 2) + j] = (digest[2*j] << 16) + (digest[2*j+1] << 8);
+            sqt->d[(ROWS / 2) - j] = (digest[2*j] << 16) + (digest[2*j+1] << 8);
+        }
+    } else if (symmetry == "D2_+2") {
+        for (int j = 0; j < 16; j++) {
+            sqt->d[(ROWS / 2) + j] = (digest[2*j] << 16) + (digest[2*j+1] << 8);
+            sqt->d[(ROWS / 2) - j - 1] = (digest[2*j] << 16) + (digest[2*j+1] << 8);
+        }
+    } else {
+        std::cout << "Invalid symmetry" << std::endl;
     }
 }
 
@@ -1395,7 +1405,7 @@ public:
 
         VersaTile* sqt = &(btq.tiles[std::make_pair(0, 0)]);
 
-        hashsoup(sqt, seedroot + suffix);
+        hashsoup(sqt, seedroot + suffix, SYMMETRY);
 
         sqt->updateflags = 256;
         imp->modified.push_back(sqt);
@@ -1475,7 +1485,7 @@ public:
         ss << "@MD5 " << md5(root) << "\n";
         ss << "@ROOT " << root << "\n";
         ss << "@RULE " << RULESTRING << "\n";
-        ss << "@SYMMETRY C1\n";
+        ss << "@SYMMETRY " << SYMMETRY << "\n";
         ss << "@NUM_SOUPS " << numsoups << "\n";
         ss << "@NUM_OBJECTS " << totobjs << "\n";
 
@@ -1534,7 +1544,7 @@ std::string obtainWork(std::string payoshakey) {
     std::ostringstream ss;
 
     ss << authstring;
-    ss << RULESTRING << "\nC1\n";
+    ss << RULESTRING << "\n" << SYMMETRY << "\n";
 
     return catagolueRequest(ss.str().c_str(), "/verify");
 
@@ -1580,7 +1590,7 @@ void verifySearch(std::string payoshakey) {
     ss << "@MD5 " << stringlist[2] << "\n";
     ss << "@PASSCODE " << stringlist[3] << "\n";
     ss << "@RULE " << RULESTRING << "\n";
-    ss << "@SYMMETRY C1\n";
+    ss << "@SYMMETRY " << SYMMETRY << "\n";
 
     // Create an empty QuickLife universe:
     lifealgo *imp2 = createUniverse("QuickLife");
@@ -1593,7 +1603,7 @@ void verifySearch(std::string payoshakey) {
     {
 
         std::string seed = stringlist[i];
-        if ((seed.length() >= 4) && (seed.substr(0,3).compare("C1/") == 0)) {
+        if ((seed.length() >= 4) && (seed.substr(0,3).compare(SYMMETRY "/") == 0)) {
             // std::cout << "[" << seed << "]" << std::endl;
             soup.censusSoup(seed.substr(3), "", imp2);
         } else {
@@ -1678,19 +1688,6 @@ void parallelSearch(int n, int m, std::string payoshaKey, std::string seed, int 
 
 #endif
 
-void correctionHaul(std::string payoshaKey) {
-
-    SoupSearcher soup;
-    soup.alloccur["yl144_1_16_afb5f3db909e60548f086e22ee3353ac"].push_back("0");
-    soup.alloccur["yl384_1_59_7aeb1999980c43b4945fb7fcdb023326"].push_back("0");
-
-    soup.census["yl144_1_16_afb5f3db909e60548f086e22ee3353ac"] = 16807;
-    soup.census["yl384_1_59_7aeb1999980c43b4945fb7fcdb023326"] = 6942;
-    soup.census["yl384_1_59_14c650b58076b33bd689d25c6add2153"] = -1;
-
-    soup.submitResults(payoshaKey, "#adjustment2", 1, 0);
-
-}
 
 void runSearch(int n, std::string payoshaKey, std::string seed, int local_log, bool testing) {
 
@@ -1782,6 +1779,7 @@ int main (int argc, char *argv[]) {
     int parallelisation = 0;
     int local_log = 0;
     bool testing = false;
+    int nullargs = 1;
 
     // Extract options:
     for (int i = 1; i < argc - 1; i++) {
@@ -1806,24 +1804,32 @@ int main (int argc, char *argv[]) {
             testing = true;
         } else if (strcmp(argv[i], "-p") == 0) {
             parallelisation = atoi(argv[i+1]);
-        } else if (strcmp(argv[i], "--adjustment") == 0) {
-            correctionHaul(payoshaKey);
-            return 0;
         } else if (strcmp(argv[i], "--rule") == 0) {
             std::cout << "\033[1;33mapgmera " << APG_VERSION << "\033[0m: ";
             std::string desired_rulestring = argv[i+1];
             if (strcmp(RULESTRING, argv[i+1]) == 0) {
                 std::cout << "Rule \033[1;34m" << RULESTRING << "\033[0m is correctly configured." << std::endl;
-                if (argc == 3) { return 0; }
+                nullargs += 2;
             } else {
                 std::cout << "Rule \033[1;34m" << RULESTRING << "\033[0m does not match desired rule \033[1;34m" << desired_rulestring << "\033[0m." << std::endl;
-                // std::string linux_command = "./recompile.sh --rule " + desired_rulestring;
-                // system(linux_command.c_str());
+                execvp("./recompile.sh", argv);
+                return 1;
+            }
+        } else if (strcmp(argv[i], "--symmetry") == 0) {
+            std::cout << "\033[1;33mapgmera " << APG_VERSION << "\033[0m: ";
+            std::string desired_symmetry = argv[i+1];
+            if (strcmp(SYMMETRY, argv[i+1]) == 0) {
+                std::cout << "Symmetry \033[1;34m" << SYMMETRY << "\033[0m is correctly configured." << std::endl;
+                nullargs += 2;
+            } else {
+                std::cout << "Symmetry \033[1;34m" << SYMMETRY << "\033[0m does not match desired symmetry \033[1;34m" << desired_symmetry << "\033[0m." << std::endl;
                 execvp("./recompile.sh", argv);
                 return 1;
             }
         }
     }
+
+    if (argc == nullargs) { return 0; }
 
     // Disable verification by default if running on a HPC;
     // otherwise verify three hauls per uploaded haul:
@@ -1831,7 +1837,7 @@ int main (int argc, char *argv[]) {
         verifications = (parallelisation <= 4) ? 3 : 0;
     }
 
-    std::cout << "\nGreetings, this is \033[1;33mapgmera " << APG_VERSION << "\033[0m, configured for \033[1;34m" << RULESTRING_SLASHED << "\033[0m.\n" << std::endl;
+    std::cout << "\nGreetings, this is \033[1;33mapgmera " << APG_VERSION << "\033[0m, configured for \033[1;34m" << RULESTRING << "/" << SYMMETRY << "\033[0m.\n" << std::endl;
 
     // Initialise QuickLife:
     qlifealgo::doInitializeAlgoInfo(staticAlgoInfo::tick());

@@ -469,12 +469,12 @@ def genasm(g, quadrows, rulestring, regsize, historical, machinetype):
 
 def main():
 
-    if (len(sys.argv) < 2):
+    if (len(sys.argv) < 3):
         print("Usage:")
-        print("python rule2asm.py b3s23")
+        print("python rule2asm.py b3s23 C1")
 
     rulestring = sys.argv[1]
-    # machinetype = sys.argv[2]
+    symmetry = sys.argv[2]
 
     m = re.match('b3?4?5?6?7?8?s0?1?2?3?4?5?6?7?8?$', rulestring)
     if m is None:
@@ -484,9 +484,20 @@ def main():
     else:
         print("Valid rulestring: \033[1;32m"+m.group(0)+"\033[0m")
 
-    (bee, ess) = binary_rulestring(rulestring)
+    if (symmetry == "C1"):
+        cellrows = 32
+    elif (symmetry == "D2_+2"):
+        cellrows = 40
+    elif (symmetry == "D2_+1"):
+        cellrows = 40
+    else:
+        print("Invalid symmetry: \033[1;31m"+symmetry+"\033[0m is not one of the supported symmetries:")
+        print("    C1, D2_+2, D2_+1")
+        exit(1)
 
-    cellrows = 32
+    print("Valid symmetry: \033[1;32m"+symmetry+"\033[0m")
+
+    (bee, ess) = binary_rulestring(rulestring)
 
     with open('includes/lifelogic-avx2.h', 'w') as g:
         genlogic(g, rulestring, 256)
@@ -508,6 +519,7 @@ def main():
 
     with open('includes/params.h', 'w') as g:
 
+        g.write('#define SYMMETRY "'+symmetry+'"\n')
         g.write('#define RULESTRING "'+rulestring+'"\n')
         g.write('#define RULESTRING_SLASHED "'+rulestring.replace('b', 'B').replace('s', '/S')+'"\n')
         g.write('#define BITTAGE 32\n')

@@ -10,6 +10,7 @@ rm -f ".depend"
 rm -f "includes/params.h"
 
 rulearg=`echo "$@" | grep -o "\\-\\-rule [a-z0-9]*" | sed "s/\\-\\-rule\\ //"`
+symmarg=`echo "$@" | grep -o "\\-\\-symmetry [A-Z0-9_+x]*" | sed "s/\\-\\-symmetry\\ //"`
 updatearg=`echo "$@" | grep -o "\\-\\-update" | sed "s/\\-\\-update/u/"`
 
 if ((${#updatearg} != 0))
@@ -40,25 +41,32 @@ echo "Skipping updates; use --update to update apgmera automatically."
 
 fi
 
+launch=1
+
 if ((${#rulearg} == 0))
 then
 rulearg="b3s23"
 echo "Rule unspecified; assuming b3s23."
 launch=0
-else
-launch=1
 fi
 
-echo "Configuring rule $rulearg"
+if ((${#symmarg} == 0))
+then
+symmarg="C1"
+echo "Symmetry unspecified; assuming C1."
+launch=0
+fi
 
-python rule2asm.py $rulearg
+echo "Configuring rule $rulearg; symmetry $symmarg"
+
+python rule2asm.py $rulearg $symmarg
 make
 
 if (($launch == 1))
 then
 ./apgmera "$@"
 else
-./apgmera --rule $rulearg
+./apgmera --rule $rulearg --symmetry $symmarg
 fi
 
 exit 0
