@@ -23,7 +23,7 @@
 #include "includes/vlife.h"
 #include "includes/incubator.h"
 
-#define APG_VERSION "v3.12"
+#define APG_VERSION "v3.13"
 
 /*
  * Produce a new seed based on the original seed, current time and PID:
@@ -1602,10 +1602,11 @@ void verifySearch(std::string payoshakey) {
     for (unsigned int i = 4; i < stringlist.size(); i++)
     {
 
+        std::string symslash = SYMMETRY "/";
         std::string seed = stringlist[i];
-        if ((seed.length() >= 4) && (seed.substr(0,3).compare(SYMMETRY "/") == 0)) {
+        if ((seed.length() >= 4) && (seed.substr(0,symslash.length()).compare(symslash) == 0)) {
             // std::cout << "[" << seed << "]" << std::endl;
-            soup.censusSoup(seed.substr(3), "", imp2);
+            soup.censusSoup(seed.substr(symslash.length()), "", imp2);
         } else {
             std::cout << "[" << seed << "]" << std::endl;
         }
