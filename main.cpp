@@ -23,7 +23,7 @@
 #include "includes/vlife.h"
 #include "includes/incubator.h"
 
-#define APG_VERSION "v3.13"
+#define APG_VERSION "v3.14"
 
 /*
  * Produce a new seed based on the original seed, current time and PID:

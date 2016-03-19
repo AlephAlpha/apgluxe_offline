@@ -38,17 +38,9 @@ all: $(SOURCES) $(EXECUTABLE)
 	true                                                 o o
 	true                                                  o
 
-# Thanks to Apple Bottom for this routine to handle dependencies:
-depend: .depend
-
-.depend: $(SOURCES)
-	rm -f ./.depend
-	$(CC) $(CFLAGS) -MM $^>>./.depend;
-
 # Clean the build environment by deleting any object files:
 clean: 
 	rm -f $(OBJECTS)
-	rm -f ./.depend
 	echo Clean done
 
 $(EXECUTABLE): $(OBJECTS) 
@@ -56,6 +48,4 @@ $(EXECUTABLE): $(OBJECTS)
 
 .cpp.o:
 	$(CC) $(CFLAGS) $< -o $@
-
-include .depend
 
