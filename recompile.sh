@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-chmod 777 "recompile.sh"
+chmod 755 "recompile.sh"
 
 # Ensures 'make' works properly:
 rm -f ".depend" | true
