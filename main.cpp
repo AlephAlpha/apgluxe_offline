@@ -23,7 +23,7 @@
 #include "includes/vlife.h"
 #include "includes/incubator.h"
 
-#define APG_VERSION "v3.16"
+#define APG_VERSION "v3.17"
 
 /*
  * Produce a new seed based on the original seed, current time and PID:
@@ -135,6 +135,23 @@ void hashsoup(vlife* imp, std::string prehash, std::string symmetry) {
                 sqt->d[(ROWS / 2) + j] = (digest[2*j] << 23) + (digest[2*j+1] << 15);
                 sqt->d[(ROWS / 2) - j] = (digest[2*j] << 23) + (digest[2*j+1] << 15);
                 sqt2->d[(ROWS / 2) + j] = (reverse_uint8(digest[2*j]) << 2) + (reverse_uint8(digest[2*j+1]) << 10);
+                sqt2->d[(ROWS / 2) - j] = (reverse_uint8(digest[2*j]) << 2) + (reverse_uint8(digest[2*j+1]) << 10);
+            }
+        } else if (symmetry == "C2_4") {
+            for (int j = 0; j < 16; j++) {
+                sqt->d[(ROWS / 2) + j] = (digest[2*j] << 22) + (digest[2*j+1] << 14);
+                sqt2->d[(ROWS / 2) - j - 1] = (reverse_uint8(digest[2*j]) << 2) + (reverse_uint8(digest[2*j+1]) << 10);
+            }
+        } else if (symmetry == "C2_2") {
+            for (int j = 0; j < 16; j++) {
+                sqt->d[(ROWS / 2) + j] = (digest[2*j] << 23) + (digest[2*j+1] << 15);
+                sqt2->d[(ROWS / 2) + j] = ((reverse_uint8(digest[2*j]) << 2) + (reverse_uint8(digest[2*j+1]) << 10)) & 7;
+                sqt2->d[(ROWS / 2) - j - 1] = (reverse_uint8(digest[2*j]) << 2) + (reverse_uint8(digest[2*j+1]) << 10);
+            }
+        } else if (symmetry == "C2_1") {
+            for (int j = 0; j < 16; j++) {
+                sqt->d[(ROWS / 2) + j] = (digest[2*j] << 23) + (digest[2*j+1] << 15);
+                sqt2->d[(ROWS / 2) + j] = ((reverse_uint8(digest[2*j]) << 2) + (reverse_uint8(digest[2*j+1]) << 10)) & 7;
                 sqt2->d[(ROWS / 2) - j] = (reverse_uint8(digest[2*j]) << 2) + (reverse_uint8(digest[2*j+1]) << 10);
             }
         } else {
