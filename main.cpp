@@ -23,7 +23,7 @@
 #include "includes/vlife.h"
 #include "includes/incubator.h"
 
-#define APG_VERSION "v3.15"
+#define APG_VERSION "v3.16"
 
 /*
  * Produce a new seed based on the original seed, current time and PID:
@@ -69,7 +69,16 @@ lifealgo *createUniverse(const char *algoName) {
    return imp ;
 }
 
-void hashsoup(VersaTile* sqt, std::string prehash, std::string symmetry) {
+uint32_t reverse_uint8(uint32_t x) {
+
+    uint32_t y = ((x & 0xaaaaaaaau) >> 1) | ((x & 0x55555555u) << 1);
+    y = ((y & 0xccccccccu) >> 2) | ((y & 0x33333333u) << 2);
+    y = ((y & 0xf0f0f0f0u) >> 4) | ((y & 0x0f0f0f0fu) << 4);
+    return y;
+
+}
+
+void hashsoup(vlife* imp, std::string prehash, std::string symmetry) {
 
     // This takes about 16 microseconds, compared with 350 for the Python counterpart!
 
@@ -80,6 +89,10 @@ void hashsoup(VersaTile* sqt, std::string prehash, std::string symmetry) {
     ctx.init();
     ctx.update( (unsigned char*)prehash.c_str(), prehash.length());
     ctx.final(digest);
+
+    // Find the central tile:
+    VersaTile* sqt = &(imp->tiles[std::make_pair(0, 0)]);
+    sqt->updateflags = 256;
 
     // Dump the soup into the array:
     if (symmetry == "C1") {
@@ -97,8 +110,43 @@ void hashsoup(VersaTile* sqt, std::string prehash, std::string symmetry) {
             sqt->d[(ROWS / 2) - j - 1] = (digest[2*j] << 16) + (digest[2*j+1] << 8);
         }
     } else {
-        std::cout << "Invalid symmetry" << std::endl;
+
+        // Find the tile immediately to the left of centre (off of the strip?)
+        VersaTile* sqt2 = &(imp->tiles[std::make_pair(-1, 0)]);
+        sqt2->updateflags = 260;
+        sqt->updateflags = 288;
+
+        if (symmetry == "D4_+4") {
+            for (int j = 0; j < 16; j++) {
+                sqt->d[(ROWS / 2) + j] = (digest[2*j] << 22) + (digest[2*j+1] << 14);
+                sqt->d[(ROWS / 2) - j - 1] = (digest[2*j] << 22) + (digest[2*j+1] << 14);
+                sqt2->d[(ROWS / 2) + j] = (reverse_uint8(digest[2*j]) << 2) + (reverse_uint8(digest[2*j+1]) << 10);
+                sqt2->d[(ROWS / 2) - j - 1] = (reverse_uint8(digest[2*j]) << 2) + (reverse_uint8(digest[2*j+1]) << 10);
+            }
+        } else if (symmetry == "D4_+2") {
+            for (int j = 0; j < 16; j++) {
+                sqt->d[(ROWS / 2) + j] = (digest[2*j] << 22) + (digest[2*j+1] << 14);
+                sqt->d[(ROWS / 2) - j] = (digest[2*j] << 22) + (digest[2*j+1] << 14);
+                sqt2->d[(ROWS / 2) + j] = (reverse_uint8(digest[2*j]) << 2) + (reverse_uint8(digest[2*j+1]) << 10);
+                sqt2->d[(ROWS / 2) - j] = (reverse_uint8(digest[2*j]) << 2) + (reverse_uint8(digest[2*j+1]) << 10);
+            }
+        } else if (symmetry == "D4_+1") {
+            for (int j = 0; j < 16; j++) {
+                sqt->d[(ROWS / 2) + j] = (digest[2*j] << 23) + (digest[2*j+1] << 15);
+                sqt->d[(ROWS / 2) - j] = (digest[2*j] << 23) + (digest[2*j+1] << 15);
+                sqt2->d[(ROWS / 2) + j] = (reverse_uint8(digest[2*j]) << 2) + (reverse_uint8(digest[2*j+1]) << 10);
+                sqt2->d[(ROWS / 2) - j] = (reverse_uint8(digest[2*j]) << 2) + (reverse_uint8(digest[2*j+1]) << 10);
+            }
+        } else {
+            std::cout << "Invalid symmetry" << std::endl;
+        }
+
+        // Indicate that the tile has been modified:
+        imp->modified.push_back(sqt2);
     }
+
+    // Indicate that the tile has been modified:
+    imp->modified.push_back(sqt);
 }
 
 void runPattern(lifealgo* curralgo, int duration) {
@@ -1398,17 +1446,13 @@ public:
     }
 
     void censusSoup(std::string seedroot, std::string suffix, lifealgo* curralgo) {
+
         vlife btq;
         btq.tilesProcessed = 0;
 
         vlife* imp = &btq;
 
-        VersaTile* sqt = &(btq.tiles[std::make_pair(0, 0)]);
-
-        hashsoup(sqt, seedroot + suffix, SYMMETRY);
-
-        sqt->updateflags = 256;
-        imp->modified.push_back(sqt);
+        hashsoup(imp, seedroot + suffix, SYMMETRY);
 
         int duration = stabilise3(imp);
 
