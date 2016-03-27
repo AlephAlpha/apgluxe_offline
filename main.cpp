@@ -23,7 +23,7 @@
 #include "includes/vlife.h"
 #include "includes/incubator.h"
 
-#define APG_VERSION "v3.18"
+#define APG_VERSION "v3.19"
 
 /*
  * Produce a new seed based on the original seed, current time and PID:
@@ -75,6 +75,38 @@ uint32_t reverse_uint8(uint32_t x) {
     y = ((y & 0xccccccccu) >> 2) | ((y & 0x33333333u) << 2);
     y = ((y & 0xf0f0f0f0u) >> 4) | ((y & 0x0f0f0f0fu) << 4);
     return y;
+
+}
+
+// From Hacker's Delight:
+void transpose8rS32(unsigned char* A, int m, int n, unsigned char* B) {
+   unsigned x, y, t;
+
+   // Load the array and pack it into x and y.
+
+   x = (A[0]<<24)   | (A[m]<<16)   | (A[2*m]<<8) | A[3*m];
+   y = (A[4*m]<<24) | (A[5*m]<<16) | (A[6*m]<<8) | A[7*m];
+
+   t = (x ^ (x >> 7)) & 0x00AA00AA;  x = x ^ t ^ (t << 7);
+   t = (y ^ (y >> 7)) & 0x00AA00AA;  y = y ^ t ^ (t << 7);
+
+   t = (x ^ (x >>14)) & 0x0000CCCC;  x = x ^ t ^ (t <<14);
+   t = (y ^ (y >>14)) & 0x0000CCCC;  y = y ^ t ^ (t <<14);
+
+   t = (x & 0xF0F0F0F0) | ((y >> 4) & 0x0F0F0F0F);
+   y = ((x << 4) & 0xF0F0F0F0) | (y & 0x0F0F0F0F);
+   x = t;
+
+   B[0]=x>>24;    B[n]=x>>16;    B[2*n]=x>>8;  B[3*n]=x;
+   B[4*n]=y>>24;  B[5*n]=y>>16;  B[6*n]=y>>8;  B[7*n]=y;
+}
+
+void transpose16(unsigned char* A, unsigned char* B) {
+
+   transpose8rS32(A, 2, 2, B);
+   transpose8rS32(A+16, 2, 2, B+1);
+   transpose8rS32(A+1, 2, 2, B+16);
+   transpose8rS32(A+17, 2, 2, B+17);
 
 }
 
@@ -155,7 +187,20 @@ void hashsoup(vlife* imp, std::string prehash, std::string symmetry) {
                 sqt2->d[(ROWS / 2) - j] = (reverse_uint8(digest[2*j]) << 2) + (reverse_uint8(digest[2*j+1]) << 10);
             }
         } else {
-            std::cout << "Invalid symmetry" << std::endl;
+            unsigned char tsegid[SHA256::DIGEST_SIZE];
+            memset(tsegid,0,SHA256::DIGEST_SIZE);
+            transpose16(digest, tsegid);
+
+            if (symmetry == "C4_4") {
+                for (int j = 0; j < 16; j++) {
+                    sqt->d[(ROWS / 2) + j] = (digest[2*j] << 22) + (digest[2*j+1] << 14);
+                    sqt->d[(ROWS / 2) - j - 1] = (tsegid[2*j] << 22) + (tsegid[2*j+1] << 14);
+                    sqt2->d[(ROWS / 2) + j] = (reverse_uint8(tsegid[2*j]) << 2) + (reverse_uint8(tsegid[2*j+1]) << 10);
+                    sqt2->d[(ROWS / 2) - j - 1] = (reverse_uint8(digest[2*j]) << 2) + (reverse_uint8(digest[2*j+1]) << 10);
+                }
+            } else {
+                std::cout << "Invalid symmetry" << std::endl;
+            }
         }
 
         // Indicate that the tile has been modified:
