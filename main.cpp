@@ -23,7 +23,7 @@
 #include "includes/vlife.h"
 #include "includes/incubator.h"
 
-#define APG_VERSION "v3.19"
+#define APG_VERSION "v3.2"
 
 /*
  * Produce a new seed based on the original seed, current time and PID:
@@ -197,6 +197,16 @@ void hashsoup(vlife* imp, std::string prehash, std::string symmetry) {
                     sqt->d[(ROWS / 2) - j - 1] = (tsegid[2*j] << 22) + (tsegid[2*j+1] << 14);
                     sqt2->d[(ROWS / 2) + j] = (reverse_uint8(tsegid[2*j]) << 2) + (reverse_uint8(tsegid[2*j+1]) << 10);
                     sqt2->d[(ROWS / 2) - j - 1] = (reverse_uint8(digest[2*j]) << 2) + (reverse_uint8(digest[2*j+1]) << 10);
+                }
+            } else if (symmetry == "C4_1") {
+                for (int j = 0; j < 16; j++) {
+                    sqt->d[(ROWS / 2) + j] |= (digest[2*j] << 23) + (digest[2*j+1] << 15);
+                    sqt->d[(ROWS / 2) - j] |= (tsegid[2*j] << 23) + (tsegid[2*j+1] << 15);
+                    sqt2->d[(ROWS / 2) + j] |= (reverse_uint8(tsegid[2*j]) << 2) + (reverse_uint8(tsegid[2*j+1]) << 10);
+                    sqt2->d[(ROWS / 2) - j] |= (reverse_uint8(digest[2*j]) << 2) + (reverse_uint8(digest[2*j+1]) << 10);
+                }
+                for (int j = -15; j < 16; j++) {
+                    sqt2->d[(ROWS / 2) + j] |= (sqt2->d[(ROWS / 2) - j] & 7);
                 }
             } else {
                 std::cout << "Invalid symmetry" << std::endl;
