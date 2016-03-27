@@ -1,7 +1,35 @@
+apgmera:  Runs random initial configurations in cellular automata and
+          periodically uploads results to https://catagolue.appspot.com
+
+Software prerequisites:  Bash, Python 2.x, GCC (g++ and make)
+Hardware prerequisites:  any 64-bit machine with an x86 processor
+
 Compile the program like so:
 
 ./recompile.sh
 
-Then execute:
+If compilation succeeded, the last two lines should read:
 
-./apgmera -k your_key
+apgmera v3.2: Rule b3s23 is correctly configured.
+apgmera v3.2: Symmetry C1 is correctly configured.
+
+which means you are ready to run the program like so:
+
+./apgmera [OPTIONS]
+
+The options may include, for example:
+
+-k mypassword                   Upload soups where 'mypassword' is your key*
+-n 5000000                      Run 5000000 soups per upload
+-p 4                            Parallelise across 4 threads
+--rule b36s245                  Run the custom rule B36/S245
+--symmetry D2_+1                Run soups with odd bilateral symmetry
+
+* see https://catagolue.appspot.com/payosha256 for instructions on how to
+  create a key; if left blank, results are uploaded anonymously.
+
+For example, you might run:
+
+./apgmera -k mypassword -p 4 -n 20000000
+
+Important: compile apgmera on the same machine on which you intend to run it.
