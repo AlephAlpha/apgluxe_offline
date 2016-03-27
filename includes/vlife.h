@@ -248,7 +248,7 @@ public:
         }
     }
 
-    int countPopulation(VersaTile* sqt) {
+    int countPopulation(VersaTile* sqt) __attribute__((optimize("-fno-strict-aliasing"))) {
 
         if (sqt->populationCurrent)
             return sqt->population;
