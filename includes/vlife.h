@@ -134,20 +134,11 @@ public:
 
     void updateBoundary(VersaTile* sqt) {
 
-#if BITTAGE == 64
-        const urow_t right30  = 0x3fffffffffffffffull;
-        const urow_t left30   = 0xfffffffffffffffcull;
-        const urow_t right16  = 0x00000000ffffffffull;
-        const urow_t left16   = 0xffffffff00000000ull;
-        const urow_t middle28 = 0x3ffffffffffffffcull;
-#else
         const urow_t right30  = 0x3fffffffu;
         const urow_t left30   = 0xfffffffcu;
         const urow_t right16  = 0x0000ffffu;
         const urow_t left16   = 0xffff0000u;
         const urow_t middle28 = 0x3ffffffcu;
-#endif
-
 
         if (sqt->updateflags & (1 << 0)) {
             VersaTile* n = getNeighbour(sqt, 0);
