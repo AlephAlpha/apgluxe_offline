@@ -23,7 +23,7 @@
 #include "includes/vlife.h"
 #include "includes/incubator.h"
 
-#define APG_VERSION "v3.2"
+#define APG_VERSION "v3.21"
 
 /*
  * Produce a new seed based on the original seed, current time and PID:
@@ -209,7 +209,36 @@ void hashsoup(vlife* imp, std::string prehash, std::string symmetry) {
                     sqt2->d[(ROWS / 2) + j] |= (sqt2->d[(ROWS / 2) - j] & 7);
                 }
             } else {
-                std::cout << "Invalid symmetry" << std::endl;
+                for (int i = 0; i < 8; i++) {
+                    digest[2*i] &= ((1 << (8 - i)) - 1);
+                    tsegid[2*i] &= (256 - (1 << (8 - i)));
+                    digest[2*i] |= tsegid[2*i];
+                    digest[2*i + 17] &= ((1 << (8 - i)) - 1);
+                    tsegid[2*i + 17] &= (256 - (1 << (8 - i)));
+                    digest[2*i + 17] |= tsegid[2*i + 17];
+                    digest[2*i + 16] = tsegid[2*i + 16];
+                }
+                if (symmetry == "D2_x") {
+                    for (int j = 0; j < 16; j++) {
+                        sqt->d[j+(ROWS / 2 - 8)] = (digest[2*j] << 16) + (digest[2*j+1] << 8);
+                    }
+                } else if (symmetry == "D8_4") {
+                    for (int j = 0; j < 16; j++) {
+                        sqt->d[(ROWS / 2) + j] = (digest[2*j] << 22) + (digest[2*j+1] << 14);
+                        sqt->d[(ROWS / 2) - j - 1] = (digest[2*j] << 22) + (digest[2*j+1] << 14);
+                        sqt2->d[(ROWS / 2) + j] = (reverse_uint8(digest[2*j]) << 2) + (reverse_uint8(digest[2*j+1]) << 10);
+                        sqt2->d[(ROWS / 2) - j - 1] = (reverse_uint8(digest[2*j]) << 2) + (reverse_uint8(digest[2*j+1]) << 10);
+                    }
+                } else if (symmetry == "D8_1") {
+                    for (int j = 0; j < 16; j++) {
+                        sqt->d[(ROWS / 2) + j] = (digest[2*j] << 23) + (digest[2*j+1] << 15);
+                        sqt->d[(ROWS / 2) - j] = (digest[2*j] << 23) + (digest[2*j+1] << 15);
+                        sqt2->d[(ROWS / 2) + j] = (reverse_uint8(digest[2*j]) << 2) + (reverse_uint8(digest[2*j+1]) << 10);
+                        sqt2->d[(ROWS / 2) - j] = (reverse_uint8(digest[2*j]) << 2) + (reverse_uint8(digest[2*j+1]) << 10);
+                    }
+                } else {
+                    std::cout << "Invalid symmetry" << std::endl;
+                }
             }
         }
 

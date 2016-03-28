@@ -487,16 +487,6 @@ def main():
 
     if (symmetry == "C1"):
         cellrows = 32
-    elif (symmetry == "D2_+2"):
-        cellrows = 40
-    elif (symmetry == "D2_+1"):
-        cellrows = 40
-    elif (symmetry == "D4_+4"):
-        cellrows = 40
-    elif (symmetry == "D4_+2"):
-        cellrows = 40
-    elif (symmetry == "D4_+1"):
-        cellrows = 40
     elif (symmetry == "C2_4"):
         cellrows = 40
     elif (symmetry == "C2_2"):
@@ -507,9 +497,26 @@ def main():
         cellrows = 40
     elif (symmetry == "C4_1"):
         cellrows = 40
+    elif (symmetry == "D2_+2"):
+        cellrows = 40
+    elif (symmetry == "D2_+1"):
+        cellrows = 40
+    elif (symmetry == "D2_x"):
+        cellrows = 32
+    elif (symmetry == "D4_+4"):
+        cellrows = 40
+    elif (symmetry == "D4_+2"):
+        cellrows = 40
+    elif (symmetry == "D4_+1"):
+        cellrows = 40
+    elif (symmetry == "D8_4"):
+        cellrows = 40
+    elif (symmetry == "D8_1"):
+        cellrows = 40
     else:
         print("Invalid symmetry: \033[1;31m"+symmetry+"\033[0m is not one of the supported symmetries:")
-        print("    C1, C2_4, C2_2, C2_1, C4_4, C4_1, D2_+2, D2_+1, D4_+4, D4_+2, D4_+1")
+        print("    C1, C2_4, C2_2, C2_1, C4_4, C4_1,")
+        print("    D2_+2, D2_+1, D2_x, D4_+4, D4_+2, D4_+1, D8_4, D8_1")
         exit(1)
 
     print("Valid symmetry: \033[1;32m"+symmetry+"\033[0m")
