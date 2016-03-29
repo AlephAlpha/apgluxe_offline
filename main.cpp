@@ -24,7 +24,7 @@
 #include "includes/incubator.h"
 #include "includes/hashsoup.h"
 
-#define APG_VERSION "v3.22"
+#define APG_VERSION "v3.23"
 
 /*
  * Produce a new seed based on the original seed, current time and PID:
@@ -194,7 +194,7 @@ double regress(std::vector<std::pair<double, double> > pairlist) {
 
 }
 
-std::string powerlyse(lifealgo* curralgo, int stepsize, int numsteps) {
+std::string powerlyse(lifealgo* curralgo, int stepsize, int numsteps, int startgen) {
 
     std::vector<std::pair<double, double> > pairlist;
     double cumpop = 1.0;
@@ -202,7 +202,7 @@ std::string powerlyse(lifealgo* curralgo, int stepsize, int numsteps) {
     for (int i = 0; i < numsteps; i++) {
         runPattern(curralgo, stepsize);
         cumpop += curralgo->getPopulation().toint();
-        pairlist.push_back(std::make_pair(std::log(i+1), std::log(cumpop)));
+        pairlist.push_back(std::make_pair(std::log(i*stepsize+startgen), std::log(cumpop)));
     }
 
     double power = regress(pairlist);
@@ -667,7 +667,8 @@ std::string getRepresentation(lifealgo* curralgo, int maxperiod, int bounds[]) {
         // std::cout << "Object is aperiodic (population = " << initpop << ")." << std::endl;
         repr = linearlyse(curralgo, 4100);
         if (repr[0] != 'y') {
-            repr = powerlyse(curralgo, 64, 10000);
+            std::cout << "Running powerlyse() on difficult growth pattern..." << std::endl;
+            repr = powerlyse(curralgo, 32, 8000, 5380);
         }
     } else {
         // std::cout << "Object has period " << period << "." << std::endl;
