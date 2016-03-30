@@ -24,7 +24,7 @@
 #include "includes/incubator.h"
 #include "includes/hashsoup.h"
 
-#define APG_VERSION "v3.23"
+#define APG_VERSION "v3.24"
 
 /*
  * Produce a new seed based on the original seed, current time and PID:
@@ -197,21 +197,24 @@ double regress(std::vector<std::pair<double, double> > pairlist) {
 std::string powerlyse(lifealgo* curralgo, int stepsize, int numsteps, int startgen) {
 
     std::vector<std::pair<double, double> > pairlist;
+    std::vector<std::pair<double, double> > pairlist2;
     double cumpop = 1.0;
 
     for (int i = 0; i < numsteps; i++) {
         runPattern(curralgo, stepsize);
         cumpop += curralgo->getPopulation().toint();
         pairlist.push_back(std::make_pair(std::log(i*stepsize+startgen), std::log(cumpop)));
+        pairlist2.push_back(std::make_pair(std::log(i+1), std::log(cumpop)));
     }
 
     double power = regress(pairlist);
+    double power2 = regress(pairlist2);
 
-    if (power < 1.10) {
+    if (power2 < 1.1) {
         return "PATHOLOGICAL";
     } else if (power < 1.65) {
         return "zz_REPLICATOR";
-    } else if (power < 2.05) {
+    } else if (power < 2.1) {
         return "zz_LINEAR";
     } else if (power < 2.9) {
         return "zz_EXPLOSIVE";
