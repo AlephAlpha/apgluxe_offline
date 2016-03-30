@@ -670,7 +670,6 @@ std::string getRepresentation(lifealgo* curralgo, int maxperiod, int bounds[]) {
         // std::cout << "Object is aperiodic (population = " << initpop << ")." << std::endl;
         repr = linearlyse(curralgo, 4100);
         if (repr[0] != 'y') {
-            std::cout << "Running powerlyse() on difficult growth pattern..." << std::endl;
             repr = powerlyse(curralgo, 32, 8000, 5380);
         }
     } else {
