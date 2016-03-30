@@ -487,6 +487,8 @@ def main():
 
     if (symmetry == "C1"):
         cellrows = 32
+    elif (symmetry == "8x32"):
+        cellrows = 32
     elif (symmetry == "C2_4"):
         cellrows = 40
     elif (symmetry == "C2_2"):
@@ -519,7 +521,7 @@ def main():
         cellrows = 40
     else:
         print("Invalid symmetry: \033[1;31m"+symmetry+"\033[0m is not one of the supported symmetries:")
-        print("    C1, C2_4, C2_2, C2_1, C4_4, C4_1,")
+        print("    C1, C2_4, C2_2, C2_1, C4_4, C4_1, 8x32,")
         print("    D2_+2, D2_+1, D2_x, D4_+4, D4_+2, D4_+1, D4_x4, D4_x1, D8_4, D8_1")
         exit(1)
 

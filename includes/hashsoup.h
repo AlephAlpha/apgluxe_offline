@@ -79,7 +79,12 @@ void hashsoup(vlife* imp, std::string prehash, std::string symmetry) {
         sqt2->updateflags = 260;
         sqt->updateflags = 288;
 
-        if (symmetry == "D4_+4") {
+        if (symmetry == "8x32") {
+            for (int j = 0; j < 8; j++) {
+                sqt->d[(ROWS / 2) + j - 4] = (digest[4*j+2] << 22) + (digest[4*j+3] << 14);
+                sqt2->d[(ROWS / 2) + j - 4] = (digest[4*j+1] << 2) + (digest[4*j] << 10);
+            }
+        } else if (symmetry == "D4_+4") {
             for (int j = 0; j < 16; j++) {
                 sqt->d[(ROWS / 2) + j] = (digest[2*j] << 22) + (digest[2*j+1] << 14);
                 sqt->d[(ROWS / 2) - j - 1] = (digest[2*j] << 22) + (digest[2*j+1] << 14);
