@@ -13,7 +13,7 @@
 
 #define TVSPACE (ROWS - 4)
 
-const urow_t globarray[] = {MIDDLE28, MIDDLE28, MIDDLE28, MIDDLE28, MIDDLE28, MIDDLE28, MIDDLE28, MIDDLE28, 1, 2, 3, 4, 5, 6, 7, 0};
+const uint32_t globarray[] = {MIDDLE28, MIDDLE28, MIDDLE28, MIDDLE28, MIDDLE28, MIDDLE28, MIDDLE28, MIDDLE28, 1, 2, 3, 4, 5, 6, 7, 0};
 
 int __best_instruction_set = 0;
 
@@ -65,8 +65,8 @@ int get_instruction_set() {
 
 struct VersaTile {
 
-    urow_t d[ROWS] /* __attribute__((aligned (32))) */;
-    urow_t hist[ROWS] /* __attribute__((aligned (32))) */;
+    uint32_t d[ROWS] /* __attribute__((aligned (32))) */;
+    uint32_t hist[ROWS] /* __attribute__((aligned (32))) */;
 
     struct VersaTile *neighbours[6];
 
@@ -134,11 +134,11 @@ public:
 
     void updateBoundary(VersaTile* sqt) {
 
-        const urow_t right30  = 0x3fffffffu;
-        const urow_t left30   = 0xfffffffcu;
-        const urow_t right16  = 0x0000ffffu;
-        const urow_t left16   = 0xffff0000u;
-        const urow_t middle28 = 0x3ffffffcu;
+        const uint32_t right30  = 0x3fffffffu;
+        const uint32_t left30   = 0xfffffffcu;
+        const uint32_t right16  = 0x0000ffffu;
+        const uint32_t left16   = 0xffff0000u;
+        const uint32_t middle28 = 0x3ffffffcu;
 
         if (sqt->updateflags & (1 << 0)) {
             VersaTile* n = getNeighbour(sqt, 0);
@@ -266,7 +266,7 @@ public:
         //     return (sqt->population > 0);
         // }
 
-        urow_t mask = 0;
+        uint32_t mask = 0;
         for (int i = 0; i < ROWS; i++) {
             mask |= sqt->d[i];
         }
@@ -319,7 +319,7 @@ public:
 
     void setcell(VersaTile* sqt, int x, int y, int state, bool overclock) {
 
-        urow_t mask = (1ull << ((BITTAGE - 1) - x));
+        uint32_t mask = (1ull << ((BITTAGE - 1) - x));
 
         if (state == 1) {
             sqt->d[y] |= mask;
@@ -383,7 +383,7 @@ public:
 
     int getcell(VersaTile* sqt, int x, int y) {
 
-        urow_t mask = (1ull << ((BITTAGE - 1) - x));
+        uint32_t mask = (1ull << ((BITTAGE - 1) - x));
 
         if (sqt->d[y] & mask) {
             return 1;
@@ -522,11 +522,11 @@ void copycells(vlife* curralgo, vlife* destalgo, bool eraseHistory) {
             sqt2->tx = tx;
             sqt2->tw = tw;
 
-            std::memcpy(sqt2->d, sqt->d, ROWS * sizeof(urow_t));
+            std::memcpy(sqt2->d, sqt->d, ROWS * 4);
             if (eraseHistory) {
-                std::memset(sqt2->hist, 0, ROWS * sizeof(urow_t));
+                std::memset(sqt2->hist, 0, ROWS * 4);
             } else {
-                std::memcpy(sqt2->hist, sqt->hist, ROWS * sizeof(urow_t));
+                std::memcpy(sqt2->hist, sqt->hist, ROWS * 4);
             }
 
             if (sqt2->updateflags == 0)
@@ -558,7 +558,7 @@ std::vector<int> getcells(vlife* curralgo)
         int rely = TVSPACE * sqt->tw - 2;
 
         for (int j = 2; j < TVSPACE + 2; j++) {
-            urow_t row = sqt->d[j] | sqt->hist[j];
+            uint32_t row = sqt->d[j] | sqt->hist[j];
             if (row) {
                 for (int i = 2; i < THSPACE + 2; i++) {
                     int v = curralgo->getcell(sqt, i, j);

@@ -24,7 +24,7 @@
 #include "includes/incubator.h"
 #include "includes/hashsoup.h"
 
-#define APG_VERSION "v3.25"
+#define APG_VERSION "v3.26"
 
 /*
  * Produce a new seed based on the original seed, current time and PID:
@@ -1201,13 +1201,8 @@ public:
 
         uint64_t cachearray[I_HEIGHT];
         uint64_t emptymatrix[I_HEIGHT];
-        /*
-        urow_t cachearray[ROWS];
-        urow_t emptymatrix[ROWS];
-        */
 
         memset(emptymatrix,0, I_HEIGHT * sizeof(uint64_t));
-        // memset(emptymatrix, 0, ROWS * sizeof(urow_t));
 
         int pathologicals = 0;
 
@@ -1219,7 +1214,6 @@ public:
         for (it = universe->tiles.begin(); it != universe->tiles.end(); it++)
         {
             memset(cachearray, 0, I_HEIGHT * sizeof(uint64_t));
-            // memset(cachearray, 0, ROWS * sizeof(urow_t));
 
                     // std::cout << "blah2" << std::endl;
             Incube* sqt = &(it->second);
