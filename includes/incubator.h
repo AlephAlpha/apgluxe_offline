@@ -67,7 +67,7 @@ public:
         return sqt->neighbours[i];
     }
 
-    void setcell(Incube* sqt, int x, int y, int state, bool overclock) {
+    void setcell(Incube* sqt, int x, int y, int state) {
 
         uint64_t mask = (1ull << (55 - x));
 
@@ -99,7 +99,7 @@ public:
         sqt->tx = tx;
         sqt->ty = ty;
 
-        setcell(sqt, ox, oy, state, false);
+        setcell(sqt, ox, oy, state);
     }
 
     int getcell(Incube* sqt, int x, int y) {
@@ -219,7 +219,7 @@ public:
                     // Destroy the glider:
                     for (int i = -1; i <= 1; i++) {
                         for (int j = -1; j <= 1; j++) {
-                            setcell(sqt, x+i, y+j, 0, true);
+                            setcell(sqt, x+i, y+j, 0);
                         }
                     }
                 }
@@ -244,11 +244,11 @@ public:
             return 0;
         } else {
             // std::cout << "Blinker detected." << std::endl;
-            setcell(sqt, x, y, 0, true);
-            setcell(sqt, x+1, y, 0, true);
-            setcell(sqt, x, y+1, 0, true);
-            setcell(sqt, x-1, y, 0, true);
-            setcell(sqt, x, y-1, 0, true);
+            setcell(sqt, x, y, 0);
+            setcell(sqt, x+1, y, 0);
+            setcell(sqt, x, y+1, 0);
+            setcell(sqt, x-1, y, 0);
+            setcell(sqt, x, y-1, 0);
             return 3;
         }
     }
@@ -265,12 +265,12 @@ public:
         } else if ((sqt->d[y-2] | sqt->hist[y-2] | sqt->d[y+5] | sqt->hist[y+5]) & (8ull << (52 - x))) {
             return 0;
         } else {
-            setcell(sqt, x, y, 0, true);
-            setcell(sqt, x+1, y+1, 0, true);
-            setcell(sqt, x-1, y+1, 0, true);
-            setcell(sqt, x-1, y+2, 0, true);
-            setcell(sqt, x+1, y+2, 0, true);
-            setcell(sqt, x, y+3, 0, true);
+            setcell(sqt, x, y, 0);
+            setcell(sqt, x+1, y+1, 0);
+            setcell(sqt, x-1, y+1, 0);
+            setcell(sqt, x-1, y+2, 0);
+            setcell(sqt, x+1, y+2, 0);
+            setcell(sqt, x, y+3, 0);
             return 6;
         }
     }
@@ -294,10 +294,10 @@ public:
                         return 0;
                     } else {
                         // std::cout << "Block detected." << std::endl;
-                        setcell(sqt, x, y, 0, true);
-                        setcell(sqt, x+1, y, 0, true);
-                        setcell(sqt, x, y+1, 0, true);
-                        setcell(sqt, x+1, y+1, 0, true);
+                        setcell(sqt, x, y, 0);
+                        setcell(sqt, x+1, y, 0);
+                        setcell(sqt, x, y+1, 0);
+                        setcell(sqt, x+1, y+1, 0);
                         return 4;
                     }
                 } else {
@@ -324,7 +324,7 @@ public:
         intList.push_back(x);
         intList.push_back(y);
         intList.push_back(getcell(sqt, x, y));
-        setcell(sqt, x, y, 0, true);
+        setcell(sqt, x, y, 0);
 
         int population = 1;
 
@@ -366,7 +366,7 @@ public:
                         int v = getcell(sqt2, px, py);
 
                         if (v > 0) {
-                            setcell(sqt2, px, py, 0, true);
+                            setcell(sqt2, px, py, 0);
 
                             tileList.push_back(sqt2);
                             intList.push_back(px);

@@ -65,8 +65,8 @@ int get_instruction_set() {
 
 struct VersaTile {
 
-    uint32_t d[ROWS] /* __attribute__((aligned (32))) */;
-    uint32_t hist[ROWS] /* __attribute__((aligned (32))) */;
+    uint32_t d[ROWS];
+    uint32_t hist[ROWS];
 
     struct VersaTile *neighbours[6];
 
@@ -239,16 +239,17 @@ public:
         }
     }
 
-    int countPopulation(VersaTile* sqt) __attribute__((optimize("-fno-strict-aliasing"))) {
+    int countPopulation(VersaTile* sqt) {
 
         if (sqt->populationCurrent)
             return sqt->population;
 
         int pop = 0;
+        uint64_t y[TVSPACE / 2];
+        std::memcpy(y, sqt->d + 2, TVSPACE * 4);
 
-        for (int i = 2; i < TVSPACE + 2; i += 2) {
-            const uint64_t v = *reinterpret_cast<const uint64_t*>(sqt->d + i);
-            pop += __builtin_popcountll(v & 0x3ffffffc3ffffffcull);
+        for (int i = 0; i < TVSPACE / 2; i++) {
+            pop += __builtin_popcountll(y[i] & 0x3ffffffc3ffffffcull);
         }
 
         sqt->population = pop;

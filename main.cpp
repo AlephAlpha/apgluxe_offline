@@ -24,7 +24,7 @@
 #include "includes/incubator.h"
 #include "includes/hashsoup.h"
 
-#define APG_VERSION "v3.26"
+#define APG_VERSION "v3.27"
 
 /*
  * Produce a new seed based on the original seed, current time and PID:

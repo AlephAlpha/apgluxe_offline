@@ -11,11 +11,9 @@ endif
 ifdef MACOSX_109_OR_LATER
     # g++ is really clang++ and there is currently no OpenMP support
     CFLAGS=-c -Wall -O3 -march=native
-    # CFLAGS=-c -Wall -Wextra -O3
 else
     # assume we're using gcc with OpenMP support
     CFLAGS=-c -Wall -O3 -march=native -fopenmp -DUSE_OPEN_MP
-    # CFLAGS=-c -Wall -Wextra -O3 -fopenmp -DUSE_OPEN_MP
     LDFLAGS=-fopenmp
 endif
 
