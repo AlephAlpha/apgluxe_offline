@@ -10,7 +10,8 @@
 
 #include "params.h"
 
-#define I_HEIGHT (4 * (ROWS - 4))
+#define HEXPANSION 4
+#define I_HEIGHT (HEXPANSION * (ROWS - 4))
 
 struct Incube {
     uint64_t d[I_HEIGHT];

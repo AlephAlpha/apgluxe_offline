@@ -58,11 +58,12 @@ void hashsoup(vlife* imp, std::string prehash, std::string symmetry) {
     sqt->updateflags = 256;
 
     // Dump the soup into the array:
-    if (symmetry == "C1") {
-        for (int j = 0; j < 16; j++) {
-            sqt->d[j+(ROWS / 2 - 8)] = (digest[2*j] << 16) + (digest[2*j+1] << 8);
-        }
-    } else if (symmetry == "D2_+1") {
+    #ifdef C1_SYMMETRY
+    for (int j = 0; j < 16; j++) {
+        sqt->d[j+(ROWS / 2 - 8)] = (digest[2*j] << 16) + (digest[2*j+1] << 8);
+    }
+    #else
+    if (symmetry == "D2_+1") {
         for (int j = 0; j < 16; j++) {
             sqt->d[(ROWS / 2) + j] = (digest[2*j] << 16) + (digest[2*j+1] << 8);
             sqt->d[(ROWS / 2) - j] = (digest[2*j] << 16) + (digest[2*j+1] << 8);
@@ -204,6 +205,7 @@ void hashsoup(vlife* imp, std::string prehash, std::string symmetry) {
         // Indicate that the tile has been modified:
         imp->modified.push_back(sqt2);
     }
+    #endif
 
     // Indicate that the tile has been modified:
     imp->modified.push_back(sqt);

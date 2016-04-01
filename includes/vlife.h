@@ -590,13 +590,13 @@ int testmain() {
         universe.tilesProcessed = 0;
         VersaTile* sqt = &(universe.tiles[std::make_pair(0, 0)]);
 
-        sqt->d[10] = 128 << 8;
-        sqt->d[11] = 320 << 8;
-        sqt->d[12] = 128 << 8;
-        sqt->d[20] = 1 << 8;
-        sqt->d[21] = 5 << 8;
-        sqt->d[22] = 13 << 8;
-        sqt->d[24] = 28 << 8;
+        sqt->d[4] = 128 << 8;
+        sqt->d[5] = 320 << 8;
+        sqt->d[6] = 128 << 8;
+        sqt->d[14] = 1 << 8;
+        sqt->d[15] = 5 << 8;
+        sqt->d[16] = 13 << 8;
+        sqt->d[18] = 28 << 8;
 
         sqt->updateflags = 64;
         universe.modified.push_back(sqt);

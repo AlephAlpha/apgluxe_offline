@@ -24,7 +24,7 @@
 #include "includes/incubator.h"
 #include "includes/hashsoup.h"
 
-#define APG_VERSION "v3.27"
+#define APG_VERSION "v3.28"
 
 /*
  * Produce a new seed based on the original seed, current time and PID:
@@ -361,13 +361,13 @@ void copycells(vlife* curralgo, incubator* destalgo) {
             int my = sqt->tw;
 
             int lx = mx % 4;
-            int ly = my % 4;
+            int ly = my % HEXPANSION;
 
             if (lx < 0) {lx += 4;}
-            if (ly < 0) {ly += 4;}
+            if (ly < 0) {ly += HEXPANSION;}
 
             int tx = (mx - lx) / 4;
-            int ty = (my - ly) / 4;
+            int ty = (my - ly) / HEXPANSION;
 
             Incube* sqt2 = &(destalgo->tiles[std::make_pair(tx, ty)]);
             sqt2->tx = tx;

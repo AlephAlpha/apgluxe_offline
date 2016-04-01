@@ -558,6 +558,8 @@ def main():
         g.write('#define MIDDLE28 0x3ffffffcu\n')
         g.write('#define BIRTHS '+str(bee)+'\n')
         g.write('#define SURVIVALS '+str(ess)+'\n')
+        if (symmetry == 'C1'):
+            g.write('#define C1_SYMMETRY 1\n')
         if (rulestring == 'b3s23'):
             g.write('#define STANDARD_LIFE 1\n')
         if (re.match('b36?7?8?s0?235?6?7?8?$', rulestring)):
