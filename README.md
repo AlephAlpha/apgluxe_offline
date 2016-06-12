@@ -45,11 +45,11 @@ which means you are ready to run the program like so:
 
 The options may include, for example:
 
-- -k mypassword      *Upload soups where 'mypassword' is your key*
-- -n 5000000         *Run 5000000 soups per upload*
-- -p 4               *Parallelise across 4 threads*
-- --rule b36s245     *Run the custom rule B36/S245*
-- --symmetry D2_+1   *Run soups with odd bilateral symmetry*
+- **-k mypassword**      Upload soups where 'mypassword' is your key
+- **-n 5000000**         Run 5000000 soups per upload
+- **-p 4**               Parallelise across 4 threads
+- **--rule b36s245**     Run the custom rule B36/S245
+- **--symmetry D2_+1**   Run soups with odd bilateral symmetry
 
 Example usage
 -------------
