@@ -16,9 +16,10 @@ of interesting objects and various charts:
 
 The search was originally performed by people running instances of
 a Python script; this repository contains the source code for a C++
-program which is 7 times faster. Also, the lack of dependence on
-Golly means that this runs without a GUI and is less memory-intensive,
-hence the suffix -nano (the apg- stands for _Ash Pattern Generator_).
+program which is 10 times faster. The prefix 'apg-' stands for _Ash
+Pattern Generator_ and the suffix '-mera' refers to the chimeric
+nature of the program (which recompiles itself whenever a different
+rule is specified).
 
 Compilation and execution
 =========================
