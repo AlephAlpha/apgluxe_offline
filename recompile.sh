@@ -9,6 +9,7 @@ rm -f "main.o" | true
 
 # Ensures compilation will fail unless rule2asm succeeds:
 rm -f "includes/params.h" | true
+rm -rf "lifelib/avxlife/lifelogic" | true
 
 rulearg=`echo "$@" | grep -o "\\-\\-rule [a-z0-9]*" | sed "s/\\-\\-rule\\ //"`
 symmarg=`echo "$@" | grep -o "\\-\\-symmetry [A-Z0-9_+x]*" | sed "s/\\-\\-symmetry\\ //"`
@@ -63,6 +64,7 @@ fi
 echo "Configuring rule $rulearg; symmetry $symmarg"
 
 python rule2asm.py $rulearg $symmarg
+python lifelib/avxlife/rule2asm.py $rulearg
 make
 
 if (($launch == 1))

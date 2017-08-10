@@ -1,0 +1,3 @@
+[submodule "lifelib"]
+	path = lifelib
+	url = https://gitlab.com/apgoucher/lifelib.git
