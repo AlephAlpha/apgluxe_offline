@@ -44,13 +44,23 @@ def main():
 
     (bee, ess) = binary_rulestring(rulestring)
 
+    m = re.match('b1?2?3?4?5?6?7?8?s0?1?2?3?4?5?6?7?8?$', rulestring)
+
+    if m is None:
+        # Arbitrary rules should use the Universal Leaf Iterator:
+        upattern = "apg::upattern<apg::UTile, 16>"
+    else:
+        # Special speedup for life-like rules to ensure comparable performance to v3.x:
+        upattern = "apg::upattern<apg::VTile28, 28>"
+
     with open('includes/params.h', 'w') as g:
 
-        g.write('#define SYMMETRY "'+symmetry+'"\n')
-        g.write('#define RULESTRING "'+rulestring+'"\n')
-        g.write('#define RULESTRING_SLASHED "'+rulestring.replace('b', 'B').replace('s', '/S')+'"\n')
-        g.write('#define BIRTHS '+str(bee)+'\n')
-        g.write('#define SURVIVALS '+str(ess)+'\n')
+        g.write('#define SYMMETRY "%s"\n' % symmetry)
+        g.write('#define RULESTRING "%s"\n' % rulestring)
+        g.write('#define RULESTRING_SLASHED "%s"\n' % rulestring.replace('b', 'B').replace('s', '/S'))
+        g.write('#define BIRTHS %s\n' % str(bee))
+        g.write('#define SURVIVALS %s\n' % str(ess))
+        g.write("#define UPATTERN %s\n" % upattern)
         if (symmetry == 'C1'):
             g.write('#define C1_SYMMETRY 1\n')
         if (rulestring == 'b3s23'):

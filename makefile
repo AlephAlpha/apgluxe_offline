@@ -14,7 +14,7 @@ ifdef MACOSX_109_OR_LATER
 else
     # assume we're using gcc with OpenMP support
     CFLAGS=-c -Wall -O3 -march=native -fopenmp -DUSE_OPEN_MP --std=c++11
-    LDFLAGS=-fopenmp -pg
+    LDFLAGS=-fopenmp
 endif
 
 SOURCES=main.cpp includes/sha256.cpp includes/md5.cpp includes/happyhttp.cpp

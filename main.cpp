@@ -17,6 +17,7 @@
 #include "includes/md5.h"
 #include "includes/payosha256.h"
 
+#include "lifelib/upattern.h"
 #include "lifelib/classifier.h"
 
 #define APG_VERSION "v4.0"
@@ -205,7 +206,7 @@ std::string linearlyse(apg::pattern ipat, int maxperiod)
 /*
  * Stabilisation detection by checking for population periodicity:
  */
-int naivestab_awesome(apg::pattern &pat) {
+int naivestab_awesome(UPATTERN &pat) {
 
     // Copied almost verbatim from the apgsearch Python script...
     int depth = 0;
@@ -230,15 +231,15 @@ int naivestab_awesome(apg::pattern &pat) {
         if (i == 400)
             period = 30;
 
-        pat = pat[period];
-        currpop = pat.popcount((1 << 30) + 3);
+        pat.advance(0, 0, period);
+        currpop = pat.totalPopulation();
         if (currpop == prevpop) {
             depth += 1;
         } else {
             depth = 0;
             if (period < 30) {
                 i += 1;
-                pat = pat[12];
+                pat.advance(0, 0, 12);
             }
         }
         prevpop = currpop;
@@ -255,7 +256,7 @@ int naivestab_awesome(apg::pattern &pat) {
 /*
  * Run the universe until it stabilises:
  */
-int stabilise3(apg::pattern &pat) {
+int stabilise3(UPATTERN &pat) {
 
     int pp = naivestab_awesome(pat);
 
@@ -272,10 +273,10 @@ int stabilise3(apg::pattern &pat) {
 
     for (int j = 0; j < 4000; j++) {
 
-        pat = pat[30];
+        pat.advance(0, 0, 30);
         generation += 30;
 
-        uint64_t h = pat.subrect(-4096, -4096, 8192, 8192).digest();
+        uint64_t h = pat.totalHash(120);
 
         // determine where to insert h into hashlist
         int pos = 0;
@@ -294,11 +295,11 @@ int stabilise3(apg::pattern &pat) {
             } else {
                 int period = (generation - genlist[pos]);
 
-                int prevpop = pat.popcount((1 << 30) + 3);
+                int prevpop = pat.totalPopulation();
 
                 for (int i = 0; i < 20; i++) {
-                    pat = pat[period];
-                    int currpop = pat.popcount((1 << 30) + 3);
+                    pat.advance(0, 0, period);
+                    int currpop = pat.totalPopulation();
                     if (currpop != prevpop) {
                         if (period < 1280)
                             period = 1280;
@@ -317,7 +318,7 @@ int stabilise3(apg::pattern &pat) {
 
     std::cout << "Failed to detect periodic behaviour!" << std::endl;
 
-    pat = pat[1280];
+    pat.advance(0, 0, 1280);
 
     return 1280;
 
@@ -376,7 +377,7 @@ public:
 
     }
 
-    bool separate(apg::pattern pat, int duration, bool proceedNonetheless, apg::classifier &cfier, std::string suffix) {
+    bool separate(UPATTERN &pat, int duration, bool proceedNonetheless, apg::classifier &cfier, std::string suffix) {
 
         std::map<std::string, int64_t> cm = cfier.census(pat, duration, &classifyAperiodic);
 
@@ -444,7 +445,10 @@ public:
     void censusSoup(std::string seedroot, std::string suffix, apg::classifier &cfier) {
 
         apg::bitworld bw = apg::hashsoup(seedroot + suffix, SYMMETRY);
-        apg::pattern pat(cfier.lab, cfier.lab->demorton(bw, 1), RULESTRING);
+        // apg::pattern pat(cfier.lab, cfier.lab->demorton(bw, 1), RULESTRING);
+        std::vector<apg::bitworld> vbw;
+        vbw.push_back(bw);
+        UPATTERN pat;
 
         int duration = stabilise3(pat);
 
@@ -465,7 +469,7 @@ public:
             // Pathological object detected:
             if (failure) {
                 attempt += 1;
-                pat = pat[10000];
+                pat.advance(10000, 0, 0);
                 duration = 4000;
             }
         }
