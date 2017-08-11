@@ -443,7 +443,7 @@ public:
 
     void censusSoup(std::string seedroot, std::string suffix, apg::classifier &cfier) {
 
-        apg::bitworld bw = hashsoup(seedroot + suffix, SYMMETRY);
+        apg::bitworld bw = apg::hashsoup(seedroot + suffix, SYMMETRY);
         apg::pattern pat(cfier.lab, cfier.lab->demorton(bw, 1), RULESTRING);
 
         int duration = stabilise3(pat);
