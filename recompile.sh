@@ -63,8 +63,8 @@ fi
 
 echo "Configuring rule $rulearg; symmetry $symmarg"
 
-python rule2asm.py $rulearg $symmarg
 python lifelib/avxlife/rule2asm.py $rulearg
+python mkparams.py $rulearg $symmarg
 make
 
 if (($launch == 1))

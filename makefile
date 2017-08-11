@@ -13,14 +13,11 @@ ifdef MACOSX_109_OR_LATER
     CFLAGS=-c -Wall -O3 -march=native --std=c++11
 else
     # assume we're using gcc with OpenMP support
-    CFLAGS=-c -Wall -O3 -march=native -fopenmp -DUSE_OPEN_MP --std=c++11 -g -pg
+    CFLAGS=-c -Wall -O3 -march=native -fopenmp -DUSE_OPEN_MP --std=c++11
     LDFLAGS=-fopenmp -pg
 endif
 
-SOURCES=main.cpp includes/sha256.cpp includes/md5.cpp includes/happyhttp.cpp \
-gollybase/bigint.cpp gollybase/lifealgo.cpp gollybase/qlifealgo.cpp gollybase/util.cpp \
-gollybase/lifepoll.cpp gollybase/liferules.cpp gollybase/viewport.cpp \
-gollybase/readpattern.cpp gollybase/qlifedraw.cpp
+SOURCES=main.cpp includes/sha256.cpp includes/md5.cpp includes/happyhttp.cpp
 
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=apgmera
