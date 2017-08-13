@@ -46,21 +46,30 @@ def main():
 
     m = re.match('b1?2?3?4?5?6?7?8?s0?1?2?3?4?5?6?7?8?$', rulestring)
 
+    if (rulestring[0] == 'g'):
+        bitplanes = int(rulestring[1:rulestring.index('b')])
+        bitplanes = 2 if (bitplanes == 3) else len(bin(bitplanes - 3))
+    else:
+        bitplanes = 1
+
     if m is None:
         # Arbitrary rules should use the Universal Leaf Iterator:
-        upattern = "apg::upattern<apg::UTile, 16>"
+        upattern = "apg::upattern<apg::UTile<BITPLANES + 1, BITPLANES>, 16>"
     else:
         # Special speedup for life-like rules to ensure comparable performance to v3.x:
         upattern = "apg::upattern<apg::VTile28, 28>"
 
     with open('includes/params.h', 'w') as g:
 
+        g.write('#define BITPLANES %d\n' % bitplanes)
         g.write('#define SYMMETRY "%s"\n' % symmetry)
         g.write('#define RULESTRING "%s"\n' % rulestring)
         g.write('#define RULESTRING_SLASHED "%s"\n' % rulestring.replace('b', 'B').replace('s', '/S'))
         g.write('#define BIRTHS %s\n' % str(bee))
         g.write('#define SURVIVALS %s\n' % str(ess))
         g.write("#define UPATTERN %s\n" % upattern)
+        g.write('#define CLASSIFIER apg::base_classifier<BITPLANES>\n')
+
         if (symmetry == 'C1'):
             g.write('#define C1_SYMMETRY 1\n')
         if (rulestring == 'b3s23'):

@@ -377,9 +377,13 @@ public:
 
     }
 
-    bool separate(UPATTERN &pat, int duration, bool proceedNonetheless, apg::classifier &cfier, std::string suffix) {
+    bool separate(UPATTERN &pat, int duration, bool proceedNonetheless, apg::base_classifier<BITPLANES> &cfier, std::string suffix) {
 
-        std::map<std::string, int64_t> cm = cfier.census(pat, duration, &classifyAperiodic);
+        pat.decache();
+        pat.advance(0, 1, duration);
+        std::vector<apg::bitworld> bwv(BITPLANES + 1);
+        pat.extractPattern(bwv);
+        std::map<std::string, int64_t> cm = cfier.census(bwv, &classifyAperiodic);
 
         bool ignorePathologicals = false;
         int pathologicals = 0;
@@ -442,13 +446,14 @@ public:
 
     }
 
-    void censusSoup(std::string seedroot, std::string suffix, apg::classifier &cfier) {
+    void censusSoup(std::string seedroot, std::string suffix, apg::base_classifier<BITPLANES> &cfier) {
 
         apg::bitworld bw = apg::hashsoup(seedroot + suffix, SYMMETRY);
         // apg::pattern pat(cfier.lab, cfier.lab->demorton(bw, 1), RULESTRING);
         std::vector<apg::bitworld> vbw;
         vbw.push_back(bw);
         UPATTERN pat;
+        pat.insertPattern(vbw);
 
         int duration = stabilise3(pat);
 
@@ -469,6 +474,8 @@ public:
             // Pathological object detected:
             if (failure) {
                 attempt += 1;
+                pat.clearHistory();
+                pat.decache();
                 pat.advance(10000, 0, 0);
                 duration = 4000;
             }
@@ -669,8 +676,8 @@ void parallelSearch(int n, int m, std::string payoshaKey, std::string seed, int 
             int threadNumber = omp_get_thread_num();
 
             SoupSearcher localSoup;
-            apg::lifetree<uint32_t, 1> lt(400);
-            apg::classifier cfier(&lt, RULESTRING);
+            apg::lifetree<uint32_t, BITPLANES> lt(400);
+            apg::base_classifier<BITPLANES> cfier(&lt, RULESTRING);
 
             long long elapsed = 0;
 
@@ -717,8 +724,8 @@ void parallelSearch(int n, int m, std::string payoshaKey, std::string seed, int 
 void runSearch(int n, std::string payoshaKey, std::string seed, int local_log, bool testing) {
 
     SoupSearcher soup;
-    apg::lifetree<uint32_t, 1> lt(400);
-    apg::classifier cfier(&lt, RULESTRING);
+    apg::lifetree<uint32_t, BITPLANES> lt(400);
+    apg::base_classifier<BITPLANES> cfier(&lt, RULESTRING);
 
     clock_t start = clock();
 
@@ -737,10 +744,10 @@ void runSearch(int n, std::string payoshaKey, std::string seed, int local_log, b
 
         i += 1;
 
-        if (i % 100 == 0) {
+        if (i % 10000 == 0) {
             clock_t end = clock();
 
-            std::cout << i << " soups completed (" << (int) (100.0 / ((double) (end-start) / CLOCKS_PER_SEC)) << " soups per second)." << std::endl;
+            std::cout << i << " soups completed (" << (int) (10000.0 / ((double) (end-start) / CLOCKS_PER_SEC)) << " soups per second)." << std::endl;
 
             start = clock();
         }
