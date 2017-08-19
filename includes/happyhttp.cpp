@@ -29,6 +29,7 @@
 
 #ifndef _WIN32
 //	#include <sys/types.h>
+        #include <strings.h>
 	#include <sys/select.h>
 	#include <sys/socket.h>
 	#include <netinet/in.h>
