@@ -3,6 +3,12 @@ set -e
 
 chmod 755 "recompile.sh"
 
+if [ ! -d "lifelib/avxlife" ]
+then
+printf "\033[33;1mDownloading lifelib...\033[0m\n"
+git submodule update --init
+fi
+
 # Ensures 'make' works properly:
 rm -f ".depend" | true
 rm -f "main.o" | true
