@@ -21,7 +21,7 @@
 #include "lifelib/classifier.h"
 #include "lifelib/incubator.h"
 
-#define APG_VERSION "v4.01"
+#define APG_VERSION "v4.02"
 #include "includes/params.h"
 #include "includes/hashsoup2.h"
 
@@ -465,22 +465,10 @@ public:
     void censusSoup(std::string seedroot, std::string suffix, apg::base_classifier<BITPLANES> &cfier) {
 
         apg::bitworld bw = apg::hashsoup(seedroot + suffix, SYMMETRY);
-        // apg::pattern pat(cfier.lab, cfier.lab->demorton(bw, 1), RULESTRING);
         std::vector<apg::bitworld> vbw;
         vbw.push_back(bw);
         UPATTERN pat;
         pat.insertPattern(vbw);
-
-        /*
-        apg::pattern pat2(cfier.lab, vbw, RULESTRING);
-        pat2.display();
-
-        std::vector<apg::bitworld> vbw2(1);
-        pat.extractPattern(vbw2);
-        pat2 = apg::pattern(cfier.lab, vbw2, RULESTRING);
-        pat2.display();
-        exit(0);
-        */
 
         int duration = stabilise3(pat);
 
@@ -614,8 +602,6 @@ std::string obtainWork(std::string payoshakey) {
 
 }
 
-/*
-
 void verifySearch(std::string payoshakey) {
 
     std::string response = obtainWork(payoshakey);
@@ -624,8 +610,6 @@ void verifySearch(std::string payoshakey) {
         std::cout << "Received no response from /verify." << std::endl;
         return;
     }
-
-    // std::cout << "[[[" << response << "]]]" << std::endl;
 
     std::stringstream iss(response);
     std::vector<std::string> stringlist;
@@ -656,12 +640,9 @@ void verifySearch(std::string payoshakey) {
     ss << "@RULE " << RULESTRING << "\n";
     ss << "@SYMMETRY " << SYMMETRY << "\n";
 
-    // Create an empty QuickLife universe:
-    lifealgo *imp2 = createUniverse("QuickLife");
-    std::cout << "Universe created." << std::endl;
-    imp2->setrule(RULESTRING_SLASHED);
-
     SoupSearcher soup;
+    apg::lifetree<uint32_t, BITPLANES> lt(400);
+    apg::base_classifier<BITPLANES> cfier(&lt, RULESTRING);
 
     for (unsigned int i = 4; i < stringlist.size(); i++)
     {
@@ -669,8 +650,7 @@ void verifySearch(std::string payoshakey) {
         std::string symslash = SYMMETRY "/";
         std::string seed = stringlist[i];
         if ((seed.length() >= 4) && (seed.substr(0,symslash.length()).compare(symslash) == 0)) {
-            // std::cout << "[" << seed << "]" << std::endl;
-            soup.censusSoup(seed.substr(symslash.length()), "", imp2);
+            soup.censusSoup(seed.substr(symslash.length()), "", cfier);
         } else {
             std::cout << "[" << seed << "]" << std::endl;
         }
@@ -686,8 +666,6 @@ void verifySearch(std::string payoshakey) {
     catagolueRequest(ss.str().c_str(), "/verify");
 
 }
-
-*/
 
 #ifdef USE_OPEN_MP
 
@@ -759,7 +737,6 @@ void runSearch(int n, std::string payoshaKey, std::string seed, int local_log, b
 
     std::cout << "Running " << n << " soups per haul:" << std::endl;
 
-
     int64_t i = 0;
     int64_t lasti = 0;
 
@@ -805,29 +782,6 @@ void runSearch(int n, std::string payoshaKey, std::string seed, int local_log, b
 
 int main (int argc, char *argv[]) {
 
-
-    /*
-    testmain();
-    return 0;
-
-    vlife universe;
-    universe.setcell(1000, 500, 2);
-    universe.setcell(800, 800, 1);
-    universe.setcell(300, 300, 2);
-    universe.setcell(1, -1, 1);
-
-    std::vector<int> celllist = getcells(&universe);
-
-    for (uint32_t i = 0; i < celllist.size(); i++) {
-        std::cout << celllist[i] << ", ";
-    }
-
-    std::cout << std::endl;
-
-    // return 0;
-    */
-
-
     // Default values:
     int soups_per_haul = 10000000;
     std::string payoshaKey = "#anon";
@@ -846,13 +800,6 @@ int main (int argc, char *argv[]) {
             seed = argv[i+1];
         } else if (strcmp(argv[i], "-n") == 0) {
             soups_per_haul = atoi(argv[i+1]);
-            /*
-            if (soups_per_haul < 1000000) {
-                soups_per_haul = 1000000;
-            } else if (soups_per_haul > 100000000) {
-                soups_per_haul = 100000000;
-            }
-            */
         } else if (strcmp(argv[i], "-v") == 0) {
             verifications = atoi(argv[i+1]);
         } else if (strcmp(argv[i], "-L") == 0) {
@@ -894,14 +841,16 @@ int main (int argc, char *argv[]) {
         verifications = (parallelisation <= 4) ? 3 : 0;
     }
 
-    std::cout << "\nGreetings, this is \033[1;33mapgmera " << APG_VERSION << "\033[0m, configured for \033[1;34m" << RULESTRING << "/" << SYMMETRY << "\033[0m.\n" << std::endl;
+    std::cout << "\nGreetings, this is \033[1;33mapgmera " << APG_VERSION;
+    std::cout << "\033[0m, configured for \033[1;34m" << RULESTRING << "/";
+    std::cout << SYMMETRY << "\033[0m.\n" << std::endl;
 
     while (true) {
         if (verifications > 0) {
             std::cout << "Peer-reviewing hauls:\n" << std::endl;
             // Verify some hauls:
             for (int j = 0; j < verifications; j++) {
-               // verifySearch(payoshaKey);
+                verifySearch(payoshaKey);
             }
             std::cout << "\nPeer-review complete; proceeding search.\n" << std::endl;
         }
