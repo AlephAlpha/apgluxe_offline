@@ -21,7 +21,7 @@
 #include "lifelib/classifier.h"
 #include "lifelib/incubator.h"
 
-#define APG_VERSION "v4.0"
+#define APG_VERSION "v4.01"
 #include "includes/params.h"
 #include "includes/hashsoup2.h"
 
