@@ -29,7 +29,7 @@ ancient computer, then the recommended alternative is the Python
 script.
 
 This program is designed to be compiled using gcc, the Gnu Compiler
-Collection. If you have this installed, then compiling apgnano is as
+Collection. If you have this installed, then compiling apgmera is as
 simple as running:
 
     bash recompile.sh
@@ -84,8 +84,12 @@ the source code, use the following command:
 
     git clone https://gitlab.com/apgoucher/apgmera.git
 
-Then, if the online repository is updated at all, you can update your
-local copy in-place by running:
+Then you can compile the search program using:
+
+    ./recompile.sh
+
+If the online repository is updated at all, you can update your local
+copy in-place by running:
 
     git pull origin master
 
@@ -94,15 +98,21 @@ in the repository directory.
 Windows users
 -------------
 
-Install Cygwin64 (from http://cygwin.com), ensuring that 'gcc-g++',
-'git' and 'make' are checked in the list of plugins to install. Open a
-Cygwin terminal, which will behave identically to a Linux terminal but
-run inside Windows. This reduces your problem to the above case.
+Install Cygwin64 (from http://cygwin.com), ensuring that the following
+are checked in the list of plugins to install:
+
+ - git
+ - make
+ - gcc-c++
+ - python2
+
+Open a Cygwin terminal, which will behave identically to a Linux terminal
+but run inside Windows. This reduces your problem to the above case.
 
 Mac OS X users
 --------------
 
-Again, use 'make' to compile the executable. However, things are more
+Again, use `./recompile.sh` to compile the executable. However, things are more
 complicated:
 
 Specifically, Mac OS X has clang (rather than gcc) as the default
