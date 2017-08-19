@@ -471,6 +471,17 @@ public:
         UPATTERN pat;
         pat.insertPattern(vbw);
 
+        /*
+        apg::pattern pat2(cfier.lab, vbw, RULESTRING);
+        pat2.display();
+
+        std::vector<apg::bitworld> vbw2(1);
+        pat.extractPattern(vbw2);
+        pat2 = apg::pattern(cfier.lab, vbw2, RULESTRING);
+        pat2.display();
+        exit(0);
+        */
+
         int duration = stabilise3(pat);
 
         bool failure = true;
