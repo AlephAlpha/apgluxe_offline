@@ -19,6 +19,7 @@
 
 #include "lifelib/upattern.h"
 #include "lifelib/classifier.h"
+#include "lifelib/incubator.h"
 
 #define APG_VERSION "v4.0"
 #include "includes/params.h"
@@ -352,7 +353,6 @@ public:
 
     void aggregate(std::map<std::string, long long> *newcensus, std::map<std::string, std::vector<std::string> > *newoccur) {
 
-        
         std::map<std::string, long long>::iterator it;
         for (it = newcensus->begin(); it != newcensus->end(); it++)
         {
@@ -373,8 +373,6 @@ public:
                 }
             }
         }
-
-
     }
 
     bool separate(UPATTERN &pat, int duration, bool proceedNonetheless, apg::base_classifier<BITPLANES> &cfier, std::string suffix) {
@@ -382,8 +380,26 @@ public:
         pat.decache();
         pat.advance(0, 1, duration);
         std::vector<apg::bitworld> bwv(BITPLANES + 1);
+
+        #ifdef INCUBATE
+        apg::incubator<56, 56> icb;
+        apg::copycells(&pat, &icb);
+        uint64_t excess[8] = {0};
+        icb.purge(excess);
+        icb.to_bitworld(bwv[0], 0);
+        icb.to_bitworld(bwv[1], 1);
+        #else
         pat.extractPattern(bwv);
+        #endif
+
         std::map<std::string, int64_t> cm = cfier.census(bwv, &classifyAperiodic);
+
+        #ifdef INCUBATE
+        if (excess[3] > 0) { cm["xp2_7"] += excess[3]; }
+        if (excess[4] > 0) { cm["xs4_33"] += excess[4]; }
+        if (excess[5] > 0) { cm["xq4_153"] += excess[5]; }
+        if (excess[6] > 0) { cm["xs6_696"] += excess[6]; }
+        #endif
 
         bool ignorePathologicals = false;
         int pathologicals = 0;
@@ -501,7 +517,7 @@ public:
 
     }
 
-    std::string submitResults(std::string payoshakey, std::string root, long long numsoups, int local_log) {
+    std::string submitResults(std::string payoshakey, std::string root, long long numsoups, int local_log, bool testing) {
 
         std::string authstring = authenticate(payoshakey.c_str(), "post_apgsearch_haul");
 
@@ -559,6 +575,8 @@ public:
             resultsFile.close();
         }
 
+        if (testing) { return "testing"; }
+
         return catagolueRequest(ss.str().c_str(), "/apgsearch");
 
     }
@@ -567,7 +585,7 @@ public:
 
 
 std::string obtainWork(std::string payoshakey) {
-    
+
     std::string authstring = authenticate(payoshakey.c_str(), "verify_apgsearch_haul");
 
     // Authentication failed:
@@ -702,11 +720,10 @@ void parallelSearch(int n, int m, std::string payoshaKey, std::string seed, int 
         }
 
         offset += n;
-        
         std::cout << "----------------------------------------------------------------------" << std::endl;
         std::cout << offset << " soups completed." << std::endl;
         std::cout << "Attempting to contact payosha256." << std::endl;
-        std::string payoshaResponse = globalSoup.submitResults(payoshaKey, seed, offset, local_log);
+        std::string payoshaResponse = globalSoup.submitResults(payoshaKey, seed, offset, local_log, 0);
         if (payoshaResponse.length() == 0) {
             std::cout << "Connection was unsuccessful; continuing search..." << std::endl;
         } else {
@@ -732,7 +749,9 @@ void runSearch(int n, std::string payoshaKey, std::string seed, int local_log, b
     std::cout << "Running " << n << " soups per haul:" << std::endl;
 
 
-    long long i = 0;
+    int64_t i = 0;
+    int64_t lasti = 0;
+
     bool finishedSearch = false;
 
     while (finishedSearch == false) {
@@ -744,30 +763,28 @@ void runSearch(int n, std::string payoshaKey, std::string seed, int local_log, b
 
         i += 1;
 
-        if (i % 10000 == 0) {
-            clock_t end = clock();
+        double elapsed = ((double) (clock() - start)) / CLOCKS_PER_SEC;
 
-            std::cout << i << " soups completed (" << (int) (10000.0 / ((double) (end-start) / CLOCKS_PER_SEC)) << " soups per second)." << std::endl;
-
+        if (elapsed >= 10.0) {
+            std::cout << i << " soups completed (" << ((int) ((i - lasti) / elapsed)) << " soups per second)." << std::endl;
+            lasti = i;
             start = clock();
         }
 
         if (i % n == 0) {
-            if (testing) {
-                finishedSearch = true;
-            } else {
             std::cout << "----------------------------------------------------------------------" << std::endl;
             std::cout << i << " soups completed." << std::endl;
             std::cout << "Attempting to contact payosha256." << std::endl;
-            std::string payoshaResponse = soup.submitResults(payoshaKey, seed, i, local_log);
+            std::string payoshaResponse = soup.submitResults(payoshaKey, seed, i, local_log, testing);
             if (payoshaResponse.length() == 0) {
                 std::cout << "Connection was unsuccessful; continuing search..." << std::endl;
             } else {
+                if (payoshaResponse == "testing") { std::cout << "testing mode" << std::endl; }
+                std::cout << "\033[35m" << payoshaResponse << "\033[0m" << std::endl;
                 std::cout << "Connection was successful; starting new search..." << std::endl;
                 finishedSearch = true;
             }
             std::cout << "----------------------------------------------------------------------" << std::endl;
-            }
         }
 
     }
