@@ -3,11 +3,14 @@ set -e
 
 chmod 755 "recompile.sh"
 
-if [ ! -d "lifelib/avxlife" ]
+if [ -d "lifelib/avxlife" ]
 then
+printf "\033[33;1mUpdating lifelib...\033[0m\n"
+else
 printf "\033[33;1mDownloading lifelib...\033[0m\n"
-git submodule update --init
 fi
+
+git submodule update --init
 
 # Ensures 'make' works properly:
 rm -f ".depend" | true

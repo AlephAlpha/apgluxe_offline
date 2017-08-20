@@ -41,6 +41,7 @@ def main():
 
     with open('includes/params.h', 'w') as g:
 
+        g.write('#define PYTHON_VERSION "%s"\n' % repr(sys.version.replace('\n', ' ')))
         g.write('#define BITPLANES %d\n' % bitplanes)
         g.write('#define SYMMETRY "%s"\n' % symmetry)
         g.write('#define RULESTRING "%s"\n' % rulestring)
