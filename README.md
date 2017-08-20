@@ -87,8 +87,9 @@ the source code, use the following command:
 
     git clone https://gitlab.com/apgoucher/apgmera.git
 
-Then you can compile the search program using:
+Then you can enter the directory and compile the search program using:
 
+    cd apgmera
     ./recompile.sh
 
 If the online repository is updated at all, you can update your local
