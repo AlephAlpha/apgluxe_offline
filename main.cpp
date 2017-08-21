@@ -16,7 +16,7 @@
 #include "lifelib/classifier.h"
 #include "lifelib/incubator.h"
 
-#define APG_VERSION "v4.03-" LIFELIB_VERSION
+#define APG_VERSION "v4.1-" LIFELIB_VERSION
 
 #include "includes/params.h"
 #include "includes/sha256.h"
@@ -58,11 +58,11 @@ int main (int argc, char *argv[]) {
             testing = true;
         } else if (strcmp(argv[i], "-p") == 0) {
             #ifndef USE_OPEN_MP
-            std::cout << "\033[1;31mWarning: apgmera has not been compiled with OpenMP support.\033[0m" << std::endl;
+            std::cout << "\033[1;31mWarning: apgluxe has not been compiled with OpenMP support.\033[0m" << std::endl;
             #endif
             parallelisation = atoi(argv[i+1]);
         } else if (strcmp(argv[i], "--rule") == 0) {
-            std::cout << "\033[1;33mapgmera " << APG_VERSION << "\033[0m: ";
+            std::cout << "\033[1;33mapgluxe " << APG_VERSION << "\033[0m: ";
             std::string desired_rulestring = argv[i+1];
             if (strcmp(RULESTRING, argv[i+1]) == 0) {
                 std::cout << "Rule \033[1;34m" << RULESTRING << "\033[0m is correctly configured." << std::endl;
@@ -74,7 +74,7 @@ int main (int argc, char *argv[]) {
                 return 1;
             }
         } else if (strcmp(argv[i], "--symmetry") == 0) {
-            std::cout << "\033[1;33mapgmera " << APG_VERSION << "\033[0m: ";
+            std::cout << "\033[1;33mapgluxe " << APG_VERSION << "\033[0m: ";
             std::string desired_symmetry = argv[i+1];
             if (strcmp(SYMMETRY, argv[i+1]) == 0) {
                 std::cout << "Symmetry \033[1;34m" << SYMMETRY << "\033[0m is correctly configured." << std::endl;
@@ -96,7 +96,7 @@ int main (int argc, char *argv[]) {
         verifications = (parallelisation <= 4) ? 3 : 0;
     }
 
-    std::cout << "\nGreetings, this is \033[1;33mapgmera " << APG_VERSION;
+    std::cout << "\nGreetings, this is \033[1;33mapgluxe " << APG_VERSION;
     std::cout << "\033[0m, configured for \033[1;34m" << RULESTRING << "/";
     std::cout << SYMMETRY << "\033[0m.\n" << std::endl;
 

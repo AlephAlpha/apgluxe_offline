@@ -193,7 +193,7 @@ std::string reseed(std::string seed) {
     const char alphabet[] = "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
     std::ostringstream newseed;
-    newseed << "m_";
+    newseed << "l_";
     for (int i = 0; i < 12; i++) {
         newseed << alphabet[digest[i] % 56];
     }
