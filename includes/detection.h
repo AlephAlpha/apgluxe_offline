@@ -57,17 +57,17 @@ std::string powerlyse(apg::pattern &ipat, int stepsize, int numsteps, int startg
 
 }
 
-std::string linearlyse(apg::pattern ipat, int maxperiod)
+std::string linearlyse(apg::pattern ipat, int maxperiod, int stepsize)
 {
-    int poplist[3 * maxperiod];
+    int poplist[3 * maxperiod] = {0};
     int difflist[2 * maxperiod];
 
     apg::pattern pat = ipat;
 
     // runPattern(curralgo, 100);
 
-    for (int i = 0; i < 3 * maxperiod; i++) {
-        pat = pat[1];
+    for (int i = 0; i < 3 * maxperiod; i += stepsize) {
+        pat = pat[stepsize];
         poplist[i] = pat.popcount((1 << 30) + 3);
     }
 
@@ -154,7 +154,9 @@ std::string linearlyse(apg::pattern ipat, int maxperiod)
  */
 std::string classifyAperiodic(apg::pattern pat) {
 
-    std::string repr = linearlyse(pat, 4100);
+    uint64_t vm = apg::uli_valid_mantissa(apg::rule2int(pat.getrule()));
+    int lss = __builtin_ctzll(vm - 1);
+    std::string repr = linearlyse(pat, 4100, lss);
     if (repr[0] != 'y') {
         repr = powerlyse(pat, 32, 8000, 5380);
     }
