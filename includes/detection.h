@@ -59,8 +59,10 @@ std::string powerlyse(apg::pattern &ipat, int stepsize, int numsteps, int startg
 
 std::string linearlyse(apg::pattern ipat, int maxperiod, int stepsize)
 {
-    int poplist[3 * maxperiod] = {0};
+    int poplist[3 * maxperiod];
     int difflist[2 * maxperiod];
+
+    std::memset(poplist, 0, 3 * maxperiod * sizeof(int));
 
     apg::pattern pat = ipat;
 
