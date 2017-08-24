@@ -43,7 +43,7 @@ std::string powerlyse(apg::pattern &ipat, int stepsize, int numsteps, int startg
     double power = regress(pairlist);
     double power2 = regress(pairlist2);
 
-    if (power2 < 1.1) {
+    if (power2 < 1.15) {
         return "PATHOLOGICAL";
     } else if (power < 1.65) {
         return "zz_REPLICATOR";
@@ -160,7 +160,7 @@ std::string classifyAperiodic(apg::pattern pat) {
     int lss = __builtin_ctzll(vm - 1);
     std::string repr = linearlyse(pat, 4100, lss);
     if (repr[0] != 'y') {
-        repr = powerlyse(pat, 32, 8000, 5380);
+        repr = powerlyse(pat, 128, 8000, 4100);
     }
 
     return repr;

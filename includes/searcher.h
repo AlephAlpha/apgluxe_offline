@@ -150,7 +150,7 @@ public:
                 attempt += 1;
                 pat.clearHistory();
                 pat.decache();
-                pat.advance(10000, 0, 0);
+                pat.advance(0, 0, 10000);
                 duration = 4000;
             }
         }
