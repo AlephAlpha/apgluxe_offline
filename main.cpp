@@ -7,6 +7,7 @@
 #include <ctime>
 #include <cmath>
 #include <unistd.h>
+#include <termios.h>
 
 #ifdef USE_OPEN_MP
 #include <omp.h>
@@ -16,7 +17,7 @@
 #include "lifelib/classifier.h"
 #include "lifelib/incubator.h"
 
-#define APG_VERSION "v4.13-" LIFELIB_VERSION
+#define APG_VERSION "v4.14-" LIFELIB_VERSION
 
 #include "includes/params.h"
 #include "includes/sha256.h"
@@ -41,7 +42,9 @@ int main (int argc, char *argv[]) {
     int local_log = 0;
     bool testing = false;
     int nullargs = 1;
-
+    bool quitByUser = false;
+    struct termios ttystate;
+    
     // Extract options:
     for (int i = 1; i < argc - 1; i++) {
         if (strcmp(argv[i], "-k") == 0) {
@@ -95,6 +98,12 @@ int main (int argc, char *argv[]) {
     if (verifications < 0) {
         verifications = (parallelisation <= 4) ? 3 : 0;
     }
+    
+    // turn on non-blocking reads
+    tcgetattr(STDIN_FILENO, &ttystate);
+    ttystate.c_lflag &= ~ICANON;
+    ttystate.c_cc[VMIN] = 1;
+    tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
 
     std::cout << "\nGreetings, this is \033[1;33mapgluxe " << APG_VERSION;
     std::cout << "\033[0m, configured for \033[1;34m" << RULESTRING << "/";
@@ -106,7 +115,7 @@ int main (int argc, char *argv[]) {
 
     std::cout << std::endl;
 
-    while (true) {
+    while (!quitByUser) {
         if (verifications > 0) {
             std::cout << "Peer-reviewing hauls:\n" << std::endl;
             // Verify some hauls:
@@ -120,17 +129,22 @@ int main (int argc, char *argv[]) {
         std::cout << "Using seed " << seed << std::endl;
         if (parallelisation > 0) {
             #ifdef USE_OPEN_MP
-            parallelSearch(soups_per_haul, parallelisation, payoshaKey, seed, local_log);
+            quitByUser = parallelSearch(soups_per_haul, parallelisation, payoshaKey, seed, local_log);
             #else
-            runSearch(soups_per_haul, payoshaKey, seed, local_log, false);
+            quitByUser = runSearch(soups_per_haul, payoshaKey, seed, local_log, false);
             #endif
         } else {
-            runSearch(soups_per_haul, payoshaKey, seed, local_log, testing);
+            quitByUser = runSearch(soups_per_haul, payoshaKey, seed, local_log, testing);
         }
         seed = reseed(seed);
 
         if (testing) { break; }
     }
 
-    return 0;
+    // turn on blocking reads
+    tcgetattr(STDIN_FILENO, &ttystate);
+    ttystate.c_lflag |= ICANON;
+    tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
+
+    return quitByUser ? 1 : 0;
 }

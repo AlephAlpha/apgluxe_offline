@@ -1,8 +1,27 @@
+#include <stdio.h>
+#include <sys/select.h>
+
+// determine whether there's a keystroke waiting
+int keyWaiting() {
+    struct timeval tv;
+    fd_set fds;
+
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;
+
+    FD_ZERO(&fds);
+    FD_SET(STDIN_FILENO, &fds); // STDIN_FILENO is 0
+
+    select(STDIN_FILENO+1, &fds, NULL, NULL, &tv);
+
+    return FD_ISSET(STDIN_FILENO, &fds);
+}
+
 #pragma once
 
 #ifdef USE_OPEN_MP
 
-void parallelSearch(int n, int m, std::string payoshaKey, std::string seed, int local_log) {
+bool parallelSearch(int n, int m, std::string payoshaKey, std::string seed, int local_log) {
 
     SoupSearcher globalSoup;
 
@@ -54,12 +73,14 @@ void parallelSearch(int n, int m, std::string payoshaKey, std::string seed, int 
         }
         std::cout << "----------------------------------------------------------------------" << std::endl;
     }
+    
+    return false;
 
 }
 
 #endif
 
-void runSearch(int n, std::string payoshaKey, std::string seed, int local_log, bool testing) {
+bool runSearch(int n, std::string payoshaKey, std::string seed, int local_log, bool testing) {
 
     SoupSearcher soup;
     apg::lifetree<uint32_t, BITPLANES> lt(400);
@@ -73,8 +94,9 @@ void runSearch(int n, std::string payoshaKey, std::string seed, int local_log, b
     int64_t lasti = 0;
 
     bool finishedSearch = false;
+    bool quitByUser = false;
 
-    while (finishedSearch == false) {
+    while ((finishedSearch == false) && (quitByUser == false)) {
 
         std::ostringstream ss;
         ss << i;
@@ -89,9 +111,16 @@ void runSearch(int n, std::string payoshaKey, std::string seed, int local_log, b
             std::cout << i << " soups completed (" << ((int) ((i - lasti) / elapsed)) << " soups per second)." << std::endl;
             lasti = i;
             start = clock();
+
+            if(keyWaiting()) {
+                char c = fgetc(stdin);
+                if ((c == 'q') || (c == 'Q'))
+                    quitByUser = true;
+            }
+            
         }
 
-        if (i % n == 0) {
+        if ((i % n == 0) || quitByUser) {
             std::cout << "----------------------------------------------------------------------" << std::endl;
             std::cout << i << " soups completed." << std::endl;
             std::cout << "Attempting to contact payosha256." << std::endl;
@@ -108,6 +137,8 @@ void runSearch(int n, std::string payoshaKey, std::string seed, int local_log, b
         }
 
     }
+    
+    return quitByUser;
 
 }
 
