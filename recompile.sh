@@ -10,8 +10,8 @@ rm -f "main.o" | true
 # Ensures compilation will fail unless rule2asm succeeds:
 rm -f "includes/params.h" | true
 
-rulearg=`echo "$@" | grep -o "\\-\\-rule [a-z0-9]*" | sed "s/\\-\\-rule\\ //"`
-symmarg=`echo "$@" | grep -o "\\-\\-symmetry [A-Z0-9_+x]*" | sed "s/\\-\\-symmetry\\ //"`
+rulearg=`echo "$@" | grep -o "\\-\\-rule [a-z0-9-]*" | sed "s/\\-\\-rule\\ //"`
+symmarg=`echo "$@" | grep -o "\\-\\-symmetry [a-zA-Z0-9_+]*" | sed "s/\\-\\-symmetry\\ //"`
 updatearg=`echo "$@" | grep -o "\\-\\-update" | sed "s/\\-\\-update/u/"`
 
 if ((${#updatearg} != 0))

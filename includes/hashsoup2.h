@@ -51,7 +51,7 @@ namespace apg {
     }
 
 // Produce a SHA-256 hash of a string, and use it to generate a soup:
-bitworld hashsoup(std::string prehash, std::string symmetry) {
+bitworld hashsoup_inner(std::string prehash, std::string symmetry) {
 
     uint8_t digest[32];
     memset(digest, 0, 32);
@@ -167,6 +167,23 @@ bitworld hashsoup(std::string prehash, std::string symmetry) {
 
     return bw;
 
+}
+
+bitworld hashsoup(std::string prehash, std::string full_symmetry) {
+
+    std::string symmetry = full_symmetry;
+    uint64_t inflations = 0;
+    while (symmetry[0] == 'i') {
+        inflations += 1;
+        symmetry = symmetry.substr(1);
+    }
+    // std::cout << inflations << " " << symmetry << std::endl;
+    bitworld bw = hashsoup_inner(prehash, symmetry);
+    for (uint64_t i = 0; i < inflations; i++) {
+        bw = bw.inflate();
+    }
+
+    return bw;
 }
 
 }
