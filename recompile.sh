@@ -22,15 +22,15 @@ newversion=`curl "https://gitlab.com/apgoucher/apgmera/raw/master/main.cpp" | gr
 oldversion=`cat main.cpp | grep "define APG_VERSION" | sed "s/#define APG_VERSION //"`
 if [ "$newversion" != "$oldversion" ]
 then
-printf "\033[0m...your copy of apgmera does not match the repository.\n"
+printf "\033[0m...your copy of apgluxe does not match the repository.\n"
 echo "New version: $newversion"
 echo "Old version: $oldversion"
 git pull
 else
-printf "\033[0m...your copy of apgmera is already up-to-date.\n"
+printf "\033[0m...your copy of apgluxe is already up-to-date.\n"
 fi
 else
-echo "Skipping updates; use --update to update apgmera automatically."
+echo "Skipping updates; use --update to update apgluxe automatically."
 fi
 
 # Ensure lifelib matches the version in the repository:
@@ -63,9 +63,9 @@ make
 
 if (($launch == 1))
 then
-./apgmera "$@"
+./apgluxe "$@"
 else
-./apgmera --rule $rulearg --symmetry $symmarg
+./apgluxe --rule $rulearg --symmetry $symmarg
 fi
 
 exit 0

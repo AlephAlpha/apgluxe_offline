@@ -20,7 +20,7 @@ endif
 SOURCES=main.cpp includes/sha256.cpp includes/md5.cpp includes/happyhttp.cpp
 
 OBJECTS=$(SOURCES:.cpp=.o)
-EXECUTABLE=apgmera
+EXECUTABLE=apgluxe
 
 # Compile:
 all: $(SOURCES) $(EXECUTABLE)

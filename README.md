@@ -17,14 +17,13 @@ of interesting objects and various charts:
 The search was originally performed by people running instances of
 a Python script; this repository contains the source code for a C++
 program which is 10 times faster. The prefix 'apg-' stands for _Ash
-Pattern Generator_ and the suffix '-mera' refers to the chimeric
-nature of the program (which recompiles itself whenever a different
-rule is specified).
+Pattern Generator_ and the suffix '-luxe' refers to the capabilities
+vis-a-vis previous versions (apgmera, apgnano, and apgsearch).
 
 Compilation and execution
 =========================
 
-**Note:** apgmera can only run on **x86-64** machines. If you have an
+**Note:** apgluxe can only run on **x86-64** machines. If you have an
 ancient computer, then the recommended alternative is the Python
 script.
 
@@ -37,12 +36,12 @@ simple as running:
 in the install directory. If compilation succeeded, the last two lines
 should resemble the following:
 
-    apgmera v4.03-ll1.0: Rule b3s23 is correctly configured.
-    apgmera v4.03-ll1.0: Symmetry C1 is correctly configured.
+    apgluxe v4.2-ll1.2: Rule b3s23 is correctly configured.
+    apgluxe v4.2-ll1.2: Symmetry C1 is correctly configured.
 
 which means you are ready to run the program like so:
 
-    ./apgmera [OPTIONS]
+    ./apgluxe [OPTIONS]
 
 The options may include, for example:
 
@@ -57,12 +56,12 @@ Example usage
 
 This invocation will upload results every 20 million soups:
 
-    ./apgmera -n 20000000
+    ./apgluxe -n 20000000
 
 If you want to upload soups non-anonymously, use the -k flag and
 provide a valid payosha256 key. The correct syntax is as follows:
 
-    ./apgmera -n 20000000 -k mykey
+    ./apgluxe -n 20000000 -k mykey
 
 where 'mykey' is replaced with your payosha256 key (available from
 http://catagolue.appspot.com/payosha256 -- note the case-sensitivity).
@@ -71,7 +70,7 @@ Omitting this parameter will cause soups to be uploaded anonymously.
 If you have a quad-core computer and would prefer not to run four
 separate instances, then use the -p command to parallelise:
 
-    ./apgmera -n 20000000 -k mykey -p 4
+    ./apgluxe -n 20000000 -k mykey -p 4
 
 This will use OpenMP to parallelise across 4 threads, and thus will
 produce and upload soups approximately four times more quickly.
