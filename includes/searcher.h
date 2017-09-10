@@ -164,7 +164,7 @@ public:
         std::map<std::string, long long>::iterator it;
         for (it = census.begin(); it != census.end(); it++)
         {
-            if (it->second != 0) {
+            if ((it->second != 0) && (it->first != "xs0_0")) {
                 censusList.push_back(std::make_pair(it->second, it->first));
                 totobjs += it->second;
             }
