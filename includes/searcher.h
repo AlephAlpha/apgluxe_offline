@@ -175,13 +175,7 @@ public:
 
     }
 
-    std::string submitResults(std::string payoshakey, std::string root, long long numsoups, int local_log, bool testing) {
-
-        std::string authstring = authenticate(payoshakey.c_str(), "post_apgsearch_haul");
-
-        // Authentication failed:
-        if (authstring.length() == 0)
-            return "";
+    void logResults(std::string root, long long numsoups) {
 
         long long totobjs = 0;
 
@@ -189,7 +183,6 @@ public:
 
         std::ostringstream ss;
 
-        ss << authstring << "\n";
         ss << "@VERSION " << APG_VERSION << "\n";
         ss << "@MD5 " << md5(root) << "\n";
         ss << "@ROOT " << root << "\n";
@@ -218,24 +211,18 @@ public:
             ss << "\n";
         }
 
-        if(local_log) {
-            std::ofstream resultsFile;
-            std::ostringstream resultsFileName;
+        std::ofstream resultsFile;
+        std::ostringstream resultsFileName;
 
-            std::time_t timestamp = std::time(NULL);
+        std::time_t timestamp = std::time(NULL);
 
-            resultsFileName << "log." << timestamp << "." << root << ".txt";
+        resultsFileName << "log." << timestamp << "." << root << ".txt";
 
-            std::cout << "Saving results to " << resultsFileName.str() << std::endl;
+        std::cout << "Saving results to " << resultsFileName.str() << std::endl;
 
-            resultsFile.open(resultsFileName.str().c_str());
-            resultsFile << ss.str();
-            resultsFile.close();
-        }
-
-        if (testing) { return "testing"; }
-
-        return catagolueRequest(ss.str().c_str(), "/apgsearch");
+        resultsFile.open(resultsFileName.str().c_str());
+        resultsFile << ss.str();
+        resultsFile.close();
 
     }
 

@@ -1,0 +1,5 @@
+*.o
+apgluxe
+includes/params.h
+lifelib/avxlife/lifelogic/
+log.*.txt

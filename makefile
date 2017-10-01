@@ -17,7 +17,7 @@ else
     LDFLAGS=-fopenmp
 endif
 
-SOURCES=main.cpp includes/sha256.cpp includes/md5.cpp includes/happyhttp.cpp
+SOURCES=main.cpp includes/sha256.cpp includes/md5.cpp
 
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=apgluxe

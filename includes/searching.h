@@ -32,7 +32,7 @@ void populateLuts() {
 
 #ifdef USE_OPEN_MP
 
-bool parallelSearch(int n, int m, std::string payoshaKey, std::string seed, int local_log) {
+bool parallelSearch(int n, int m, std::string seed) {
 
     SoupSearcher globalSoup;
 
@@ -77,14 +77,10 @@ bool parallelSearch(int n, int m, std::string payoshaKey, std::string seed, int 
         offset += n;
         std::cout << "----------------------------------------------------------------------" << std::endl;
         std::cout << offset << " soups completed." << std::endl;
-        std::cout << "Attempting to contact payosha256." << std::endl;
-        std::string payoshaResponse = globalSoup.submitResults(payoshaKey, seed, offset, local_log, 0);
-        if (payoshaResponse.length() == 0) {
-            std::cout << "Connection was unsuccessful; continuing search..." << std::endl;
-        } else {
-            std::cout << "Connection was successful; starting new search..." << std::endl;
-            finishedSearch = true;
-        }
+        std::cout << "Logging..." << std::endl;
+        globalSoup.logResults(seed, offset);
+        std::cout << "Starting new search..." << std::endl;
+        finishedSearch = true;
         std::cout << "----------------------------------------------------------------------" << std::endl;
     }
     
@@ -94,7 +90,7 @@ bool parallelSearch(int n, int m, std::string payoshaKey, std::string seed, int 
 
 #endif
 
-bool runSearch(int n, std::string payoshaKey, std::string seed, int local_log, bool testing) {
+bool runSearch(int n, std::string seed) {
 
     SoupSearcher soup;
     apg::lifetree<uint32_t, BITPLANES> lt(400);
@@ -137,16 +133,10 @@ bool runSearch(int n, std::string payoshaKey, std::string seed, int local_log, b
         if ((i % n == 0) || quitByUser) {
             std::cout << "----------------------------------------------------------------------" << std::endl;
             std::cout << i << " soups completed." << std::endl;
-            std::cout << "Attempting to contact payosha256." << std::endl;
-            std::string payoshaResponse = soup.submitResults(payoshaKey, seed, i, local_log, testing);
-            if (payoshaResponse.length() == 0) {
-                std::cout << "Connection was unsuccessful; continuing search..." << std::endl;
-            } else {
-                if (payoshaResponse == "testing") { std::cout << "testing mode" << std::endl; }
-                std::cout << "\033[35m" << payoshaResponse << "\033[0m" << std::endl;
-                std::cout << "Connection was successful; starting new search..." << std::endl;
-                finishedSearch = true;
-            }
+            std::cout << "Logging..." << std::endl;
+            soup.logResults(seed, i);
+            std::cout << "Starting new search..." << std::endl;
+            finishedSearch = true;
             std::cout << "----------------------------------------------------------------------" << std::endl;
         }
 

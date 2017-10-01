@@ -1,3 +1,17 @@
+离线版说明
+========
+
+[apgluxe](https://gitlab.com/apgoucher/apgmera) 是由 Adam P. Goucher 创作的一个[生命游戏搜索程序](http://conwaylife.com/wiki/Apgsearch)。它会在生命游戏或别的元胞自动机中生成汤，运行至稳定下来，从结果中识别出静物、振荡子、飞船等图样，并将结果上传到 [Catagolue](http://catagolue.appspot.com) 网站上。
+
+由于 [Catagolue](http://catagolue.appspot.com) 用的是 AppSpot 的域名，在中国大陆无法登录， apgluxe 也无法正常工作。于是我修改了一下，制作了此离线版。离线版不会上传结果，而是把结果保存在一个类似于 `log.1457882181.m_cDbsaQswZHeL.txt` 的文件当中。结果中的图样采用 [apgcode](http://conwaylife.com/wiki/Apgcode) 格式。原版中的一些命令行选项（如`-k`）不再支持。也不再支持用 `./recompile.sh --update` 更新。
+
+我完全不懂C语言，只是胡乱修改了一下，把看起来像是和联网有关的内容都删掉，好像能够正常编译，不能保证不会有错。如果身处墙外，请尽量使用[原版](https://gitlab.com/apgoucher/apgmera)。
+
+**注意：** apgluxe 只支持**64位**的电脑——至少原版是这么说的。如果是 Windows 用户，请先安装 [Cygwin64](http://cygwin.com)。
+
+以下是原版的README.md，只字未改：
+============================
+
 This program searches random initial configurations in Conway's Game
 of Life and periodically uploads results to a remote server. You can
 read more information about the distributed search at the following URL:
