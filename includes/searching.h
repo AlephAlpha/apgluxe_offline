@@ -77,7 +77,6 @@ bool parallelSearch(int n, int m, std::string seed) {
         offset += n;
         std::cout << "----------------------------------------------------------------------" << std::endl;
         std::cout << offset << " soups completed." << std::endl;
-        std::cout << "Logging..." << std::endl;
         globalSoup.logResults(seed, offset);
         std::cout << "Starting new search..." << std::endl;
         finishedSearch = true;
@@ -133,7 +132,6 @@ bool runSearch(int n, std::string seed) {
         if ((i % n == 0) || quitByUser) {
             std::cout << "----------------------------------------------------------------------" << std::endl;
             std::cout << i << " soups completed." << std::endl;
-            std::cout << "Logging..." << std::endl;
             soup.logResults(seed, i);
             std::cout << "Starting new search..." << std::endl;
             finishedSearch = true;

@@ -5,9 +5,11 @@
 
 由于 [Catagolue](http://catagolue.appspot.com) 用的是 AppSpot 的域名，在中国大陆无法登录， apgluxe 也无法正常工作。于是我修改了一下，制作了此离线版。离线版不会上传结果，而是把结果保存在一个类似于 `log.1457882181.m_cDbsaQswZHeL.txt` 的文件当中。结果中的图样采用 [apgcode](http://conwaylife.com/wiki/Apgcode) 格式。原版中的一些命令行选项（如`-k`）不再支持。也不再支持用 `./recompile.sh --update` 更新。
 
-我完全不懂C语言，只是胡乱修改了一下，把看起来像是和联网有关的内容都删掉，好像能够正常编译，不能保证不会有错。如果身处墙外，请尽量使用[原版](https://gitlab.com/apgoucher/apgmera)。
+我完全不懂 C++，只是胡乱修改了一下，把看起来像是和联网有关的内容都删掉，好像能够正常编译，不能保证不会有错。如果身处墙外，请尽量使用[原版](https://gitlab.com/apgoucher/apgmera)。
 
 **注意：** apgluxe 只支持**64位**的电脑——至少原版是这么说的。如果是 Windows 用户，请先安装 [Cygwin64](http://cygwin.com)。
+
+此外，我还加了一个 apgcode 转 rle 的脚本：`apg2rle.py`。它基于 [LegionMammal978](https://codegolf.stackexchange.com/users/33208/legionmammal978) 发在 [StackExchange 的一个聊天室里](https://chat.stackexchange.com/transcript/42936?m=31253844#31253844)的一个脚本，原本一次只能读取一个 apgcode，我把它改成了批量转换。这个脚本必须在 [Golly](http://golly.sourceforge.net/) 里使用。先选择一个 apgluxe 生成的 log 文件，然后选择一个目录。转换出来的所有 rle 文件会放在那个目录里。
 
 以下是原版的README.md，只字未改：
 ============================
