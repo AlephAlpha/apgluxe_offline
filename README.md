@@ -1,4 +1,4 @@
-注意：apgluxe 的原作者为 Catagolue 提供了另一个域名：[gol.hatsya.co.uk](http://catagolue.appspot.com)。这个没有被墙。只需把原版的 apgluxe 中的 catagolue.appspot.com 换成 gol.hatsya.co.uk 就能正常工作了。因此此离线版已经没有意义了。
+注意：apgluxe 的原作者为 Catagolue 提供了另一个域名：[gol.hatsya.co.uk](http://catagolue.appspot.com)。这个没有被墙。只需把原版的 apgluxe 中的 catagolue.appspot.com 换成 gol.hatsya.co.uk 就能正常工作了。原版的最新版也已经添加这个地址（如果访问不稳定，可以尝试在 ping 得通的时候记下 ip 地址，然后改 Host）。因此此离线版已经没有意义了。
 
 离线版说明
 ========
